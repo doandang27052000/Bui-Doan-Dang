@@ -272,40 +272,10 @@ Nhập thông tin và *Log in* vào:
 
 ![alt](./imgs/instance.png)
 
----
-
-## IV. DEBUG
-
-*Các lỗi này mặc dù nhỏ nhưng đã tốn gần như 80% thời gian để debug :(*
-
-- Lỗi sai tên group-volume
-![alt](./img2/error-volume.png)
-
-Lỗi này nguyên nhân là do trong file global.yml bạn đặt nhầm tên LVM volume group. Nên sửa lại thành volume-cinder. Ở đây cũng có thể là do chưa tạo group cinder.
-
-- Lỗi python-pip
-  
-![error](./img2/error-pip.png)
-
-Bạn nên xem thử lại đã *pip install -U pip* lúc đầu hay chưa. Nếu không được thì quay lại phần cấu hình.
-
-- Lỗi a password is required
-
-![alt](./img2/error-genpwd.png)
-
-Lỗi này thường do lúc bạn quay lại set-up thì phải genpwd lại password
-
-- Lỗi mất kết nối lúc Deploy
-
-![alt](./img2/error-lost-connect.png)
-
-Lỗi này thường bị khi SSH vào, trong lúc deploy thì tốt nhất không nên SSH *(Theo ý kiến cá nhân).*
-
----
-
 ## Nguồn tham khảo
-
-- [OpenStack Docs - All-In-One Single VM](https://docs.openstack.org/kolla-ansible/latest/user/quickstart.html)
+- [Tìm hiểu về ](OpenStackhttps://viettelidc.com.vn/tin-tuc/tim-hieu-ve-openstack-nen-tang-dich-vu-may-chu-ao-viettel-start-cloud-cua-viettel-idc)
+- [Hướng dẫn cài đặt OpenStack Xena bằng Kolla Ansible](https://docs.openstack.org/kolla-ansible/xena/user/quickstart.html)
 - [Quick Start - Kolla Ansible](https://docs.openstack.org/devstack/pike/guides/single-vm.html)
-- [Deploy-all-in-one-openstack-with-kolla-ansible](https://kifarunix.com/deploy-all-in-one-openstack-with-kolla-ansible-on-ubuntu-18-04/)
-- <https://docs.openstack.org/kolla-ansible/latest/>
+- [Hướng dẫn cài đặt OpenStack Train bằng Kolla Ansible](https://news.cloud365.vn/openstack-kolla-phan-1-huong-dan-cai-dat-openstack-train-all-in-one-bang-kolla-ansible/)
+- [LeMinhTan-OpenStack](https://github.com/vietstacker/Viettel-Digital-Talent-Program-2021/tree/main/Phase-1-Practices/Week-3/LeMinhTan/openStack)
+- [Tr-OpenStack](anDucLuonghttps://github.com/vietstacker/Viettel-Digital-Talent-Program-2021/blob/main/Phase-1-Practices/Week-3/Tran-Duc-Luong/IaaS-OpenStack.md)
