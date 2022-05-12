@@ -221,7 +221,7 @@ kolla-ansible -i all-in-one pull
 
 - Cài đặt Openstack
 
-*Bước final tiến đến thành công =))"
+*Bước final tiến đến thành công =))*
 
 ```
 kolla-ansible -i all-in-one deploy
@@ -229,7 +229,6 @@ kolla-ansible -i all-in-one deploy
 
 ![alt](./imgs/8-deploy.png)
 
-*Bước này nếu lúc làm bạn SSH có thể bị mất kết nối giữa chừng, nên chạy các câu lệnh này trực tiếp trong VM*
 
 - Thiết lập File Environment Openstack
 
@@ -238,6 +237,7 @@ kolla-ansible -i all-in-one post-deploy
 ```
 
 ![alt](./imgs/9-deploy2.png)
+
 Lưu ý: Sau khi hoàn thành mỗi bước các bạn nên snapshot để tránh trường hợp lỗi có thể sảy ra 
 ---
 ### Cài  Openstack CLI
@@ -271,11 +271,11 @@ keystone_admin_password: 4OI0CZ5bIEj3ylrsGgWzcj8ESgEBOox0pjYKXZhq
 
 ![alt](./imgs/keystone.png)
 
-- Truy cập địa chỉ: <http://10.0.2.15/auth/login/?next=/>. Nhập các thông tin đăng nhập: *Admin / 4OI0CZ5bIEj3ylrsGgWzcj8ESgEBOox0pjYKXZhq*
+- Truy cập địa chỉ: <http://10.0.2.15/auth/login/?next=/>. Nhập các thông tin đăng nhập: Admin / 4OI0CZ5bIEj3ylrsGgWzcj8ESgEBOox0pjYKXZhq
 
 ![alt](./imgs/openstack.png)
 
-Nhập thông tin và *Log in* vào:
+Nhập thông tin rồi nhấn đăng nhập:
 
 ![alt](./imgs/instance.png)
 
