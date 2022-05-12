@@ -40,12 +40,15 @@ Openstack cung cấp bảng điều khiển sẵn có, cung cấp cho quản tr�
 #### OpenStack Dashboard:
 - Cung cấp cho người quản trị cũng như người dùng giao diện đồ họa để truy cập, cung cấp và tự động tài nguyên cloud.
 - Giúp việc thiết kế có thể mở rộng giúp dễ dàng.
+
+
 ![alt](./imgs/2-feature.png)
 
 ### OpenStack Kolla:
 Openstack Kolla là Project hay công cụ sử dụng để triển khai, vận hành Openstack. Kolla được phát hành từ phiên bản Kilo và chính thức trở thành Project Openstack.
 
 Với ý tưởng của Project Kolla là triển khai Openstack trong môi trường Container, tự động triển khai Openstack bằng Kolla Ansible. Qua đó chỉ với 1 vài thao tác, chúng ta đã có môi trường Openstack để sử dụng. Hơn nữa, Project Kolla cũng cung cấp sẵn các giải pháp về giám sát, HA, Rolling Upgrades … cho Openstack
+
 
 ![alt](./imgs/3-kolla-openstack.png)
 
