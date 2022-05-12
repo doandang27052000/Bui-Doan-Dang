@@ -46,6 +46,7 @@ Openstack cung cấp bảng điều khiển sẵn có, cung cấp cho quản tr�
 Openstack Kolla là Project hay công cụ sử dụng để triển khai, vận hành Openstack. Kolla được phát hành từ phiên bản Kilo và chính thức trở thành Project Openstack.
 
 Với ý tưởng của Project Kolla là triển khai Openstack trong môi trường Container, tự động triển khai Openstack bằng Kolla Ansible. Qua đó chỉ với 1 vài thao tác, chúng ta đã có môi trường Openstack để sử dụng. Hơn nữa, Project Kolla cũng cung cấp sẵn các giải pháp về giám sát, HA, Rolling Upgrades … cho Openstack
+
 ![alt](./imgs/3-kolla-openstack.png)
 
 
@@ -66,7 +67,12 @@ Với ý tưởng của Project Kolla là triển khai Openstack trong môi trư
     - OS (sda): 128 GB
     - Data VM (sdb): 64 GB
  Tạo ổ cứng rồi mout vào máy ảo
+ 
+ 
 ![alt](./imgs/4-network.png)
+
+- Cài đặt mạng với 2 network interface: enp0s3 và enp0s8
+
 ## Tiến hành cài đặt:
 ### Cài đặt các package cần thiết:
 - Trước tiên ta update hệ điều hành 
@@ -93,7 +99,7 @@ Lưu ý: Có thể cài đặt không cần môi trường ảo
 pip install -U pip
 ```
 
-- Cài đặt Ansible, Kolla Ansible ở đây mình sử dụng xena vì vậy ansible hỗ trợ sẽ <5
+- Cài đặt Ansible, Kolla Ansible ở đây mình sử dụng xena vì vậy phiên bản ansbile phù hờn là từ 2.10 đến 4 
 
 ```
 pip install 'ansible<5.0'
