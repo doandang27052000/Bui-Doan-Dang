@@ -1,18 +1,16 @@
-# Cài đặt OpenStack trong môi trường 
+# Cài đặt OpenStack trong môi trường ảo 
 
 ## Content
 
-- [Setup OpenStack AIO inside VM with Kolla](#setup-openstack-aio-inside-vm-with-kolla)
+- [Cài đặt OpenStack trong môi trường ảo ](#Cài-đặt-OpenStack-trong-môi-trường-ảo)
   - [Content](#content)
-  - [I. Yêu cầu](#i-yêu-cầu)
-  - [II. Cài đặt](#ii-cài-đặt)
-  - [III. Cài đặt và cấu hình Openstack Train bằng Kolla Ansible](#iii-cài-đặt-và-cấu-hình-openstack-train-bằng-kolla-ansible)
-  - [IV. DEBUG](#iv-debug)
+  - [OpenStack](#OpenStack)
+  - [Cài đặt](#cài-đặt)
   - [Nguồn tham khảo](#nguồn-tham-khảo)
 
 ---
 
-## I. OpenStack
+## OpenStack
 
 ### OpenStack là gì?
 OpenStack là một platform điện toán đám mây nguồn mở hỗ trợ cả public clouds và private clouds. Nó cung cấp giải pháp xây dựng hạ tầng điện toán đám mây đơn giản, có khả năng mở rộng và nhiều tính năng phong phú.
@@ -53,7 +51,7 @@ Với ý tưởng của Project Kolla là triển khai Openstack trong môi trư
 
 ---
 
-## II. Cài đặt
+## Cài đặt
 ### Yêu cầu:
 #### Kiến thức cơ bản:
   - [Ansible]([(https://devdocs.io/ansible~2.11/))
@@ -231,7 +229,7 @@ kolla-ansible -i all-in-one post-deploy
 ```
 
 ![alt](./imgs/9-deploy2.png)
-Lưu ý: Sau khi hoàn thành mỗi bước các bạn nên snapshot để tránh trường hợp lỗi có thể sảy r
+Lưu ý: Sau khi hoàn thành mỗi bước các bạn nên snapshot để tránh trường hợp lỗi có thể sảy ra 
 ---
 ### Cài  Openstack CLI
 
