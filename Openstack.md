@@ -1,4 +1,4 @@
-# Setup OpenStack AIO inside VM with Kolla
+# Cài đặt OpenStack trong môi trường 
 
 ## Content
 
@@ -12,68 +12,82 @@
 
 ---
 
-## I. Yêu cầu
+## I. OpenStack
 
-- Nắm kiến thức cơ bản về
+### OpenStack là gì?
+OpenStack là một platform điện toán đám mây nguồn mở hỗ trợ cả public clouds và private clouds. Nó cung cấp giải pháp xây dựng hạ tầng điện toán đám mây đơn giản, có khả năng mở rộng và nhiều tính năng phong phú.
 
-  - [Ansible]([(https://devdocs.io/ansible~2.11/))
-  - [Docker]([(https://docs.docker.com/))
+Openstack cung cấp bảng điều khiển sẵn có, cung cấp cho quản trị viên quyền kiểm soát tạo ra các quyền thứ cấp cho người dùng nhằm mục đích cung cấp tài nguyên thông qua giao diện web.
+![alt](./imgs/1-.png)
+### Các thành phần trong OpenStack
 
-- Cấu hình
-  - Chuẩn bị máy ảo với hệ điều hành CentOS 7 hoặc Ubuntu
-  - CPU: 4 Core
-  - RAM: 8 GB
-  - Disk: 2 ổ
-    - OS (sda): 40 GB
-    - Data VM (sdb): 30 GB
-  - Network: 2 interface
-    - Internal Network: Ở đây mình dùng Host-only dải 192.168.56.0/24 *(enp0s9*)
-    - External Network: Ở đây mình dùng Bridge dải 192.168.11.0/24 *(enp0s8)*
+#### OpenStack compute-Nova:
+- Module này quản lý và cung cấp máy ảo.
+- Compute có thể thực h networking, CPU, storage, memory, tạo, điều khiển và xóa bỏ máy ảo, security, access control.
+#### OpenStack Glance:
+- OpenStack Image Service, quản lý các disk image ảo.
+- Glance hỗ trợ các ảnh Raw, Hyper-V (VHD), VirtualBox (VDI), Qemu (qcow2) và VMWare (VMDK, OVF).
+- Có thể tạo, xóa, cập nhật thêm các virtual disk images, cấu hình các public và private image và điều khiển việc truy cập vào chúng.
+#### OpenStack Object Storage:
+- Dùng để quản lý lưu trữ.
+- Lưu trữ phân tán cho quản lý tất cả các dạng của lưu trữ như: archives, user data, virtual machine image.
+- nhiều lớp redundancy và sự nhân bản được thực hiện tự động =>  tránh mất mát dữ liệu.
+#### Identity Server:
+- Dịch vụ xác thực và ủy quyền trong OpenStack.
+- Quản lý xác thực cho user và projects.
+#### OpenStack Netwok:
+- Thành phần quản lý network cho các máy ảo.
+- Cung cấp chức năng network as a service.
+- Đây là hệ thống có các tính chất pluggable, scalable và API-driven.
+#### OpenStack Dashboard:
+- Cung cấp cho người quản trị cũng như người dùng giao diện đồ họa để truy cập, cung cấp và tự động tài nguyên cloud.
+- Giúp việc thiết kế có thể mở rộng giúp dễ dàng.
+![alt](./imgs/2-feature.png)
 
-    *Lưu ý: để dùng được Host-only chúng ta phải tạo Host-only Network trước tại phần File của máy ảo*
+### OpenStack Kolla:
+Openstack Kolla là Project hay công cụ sử dụng để triển khai, vận hành Openstack. Kolla được phát hành từ phiên bản Kilo và chính thức trở thành Project Openstack.
 
-![network](./img2/Network11.png)
+Với ý tưởng của Project Kolla là triển khai Openstack trong môi trường Container, tự động triển khai Openstack bằng Kolla Ansible. Qua đó chỉ với 1 vài thao tác, chúng ta đã có môi trường Openstack để sử dụng. Hơn nữa, Project Kolla cũng cung cấp sẵn các giải pháp về giám sát, HA, Rolling Upgrades … cho Openstack
+![alt](./imgs/3-kolla-openstack.png)
 
-**OpenStack**
-
-Openstack Kolla là Project hay công cụ sử dụng để triển khai, vận hành Openstack. Kolla được phát hành từ phiên bản Kilo và chính thức trở thành Project Openstack tại phiên bản Liberty.
-
-![kolla](./img2/kolla.jpeg)
 
 ---
 
 ## II. Cài đặt
-
-**1. Update hệ điều hành và tắt Firewall nếu cần**
-
+### Yêu cầu:
+#### Kiến thức cơ bản:
+  - [Ansible]([(https://devdocs.io/ansible~2.11/))
+  - [Docker]([(https://docs.docker.com/))
+#### Cấu hình máy:
+ Cấu hình
+  - Chuẩn bị máy ảo với hệ điều hành Ubuntu, CentOS hoặc Debian
+  - CPU: 4 Core
+  - RAM: 8 GB
+  - Vì máy yếu nên mình chỉ cài: CPU: 2 Core, RAM: 4G.
+  - Disk: 2 ổ
+    - OS (sda): 128 GB
+    - Data VM (sdb): 64 GB
+ Tạo ổ cứng rồi mout vào máy ảo
+![alt](./imgs/4-network.png)
+## Tiến hành cài đặt:
+### Cài đặt các package cần thiết:
+- Trước tiên ta update hệ điều hành 
 ```
 sudo apt update
 sudo apt upgrade
-
-systemctl stop firewalld
-systemctl disable firewalld
-
-init 6 
 ```
-
-**2. Cài các thư viện cần thiết**
-
+- Cài đặt package cần thiết 
 ```
 sudo apt install python3-dev libffi-dev gcc libssl-dev
 ```
-
-**3. Khởi tạo môi trường ảo và cài đặt các gói cần thiết**
-
-Ở đây để làm việc độc lập và tránh ảnh hưởng tới môi trường chính của máy, ngoài ra có thể xoá và tạo mới khi có lỗi. Chúng ta sử dụng virtual environment
-
-- Cài đặt và activate môi trường
-  
+- Cài đặt môi trường ảo, ta sử virtual environment. Để cài đặt ta chạy các dòng lệnh
  ```
 sudo apt install python3-venv
 
 python3 -m venv $HOME/kolla-openstack
 source $HOME/kolla-openstack/bin/activate
 ```
+Lưu ý: Có thể cài đặt không cần môi trường ảo
 
 - Cài đặt gói pip
 
@@ -81,13 +95,13 @@ source $HOME/kolla-openstack/bin/activate
 pip install -U pip
 ```
 
-- Cài đặt Ansible, Kolla Ansible yêu cầu bản 2.9 hoặc 2.10
+- Cài đặt Ansible, Kolla Ansible ở đây mình sử dụng xena vì vậy ansible hỗ trợ sẽ <5
 
 ```
-pip install 'ansible<3.0'
+pip install 'ansible<5.0'
 ```
 
-- Tạo file ansible configuration
+- Tiếp đến ta tạo file ansible configuration
 
 ```
 vim $HOME/ansible.cfg
@@ -100,17 +114,16 @@ vim $HOME/ansible.cfg
     forks=100
 ---
 
-## III. Cài đặt và cấu hình Openstack Train bằng Kolla Ansible
+### Cài đặt Kollla-ansible:  
 
-**1. Cài đặt Kolla Ansible**
 
-- Cài đặt Kolla Ansible
+- Ta clone Kolla-Ansible Xena từ trên git về 
 
 ```
-pip install kolla-ansible
+pip install git+https://opendev.org/openstack/kolla-ansible@stable/xena
 ```
 
-- Tạo /etc/kolla directory
+- Tạo thư mục /etc/kolla
 
 ```
 sudo mkdir -p /etc/kolla
@@ -122,42 +135,35 @@ sudo chown $USER:$USER /etc/kolla
 ```
 cp $HOME/kolla-openstack/share/kolla-ansible/etc_examples/kolla/* /etc/kolla/
 ```
-
+Copy inventory file all-in-one tới thư mục hiện tại
 ```
 cp $HOME/kolla-openstack/share/kolla-ansible/ansible/inventory/all-in-one .
 ```
 
-- Test thử
+- Chạy thử 
 
 ```
-Ansible -i all-in-one all -m ping
+ansible -i all-in-one all -m ping
 ```
 
-![alt](./img2/ansible-ping.png)
+![alt](./imgs/5-ansible-ping.png)
 
 ---
 
-**2. Cài đặt openstack**
-
-- Thiết lập phần vùng LVM dành cho Cinder
+### Cài đặt cấu hình Kolla-ansible: 
+- Thiết lập phần vùng LVM dành cho Cinder ở ổ đĩa sdb 
 
 ```
-pvcreate /dev/vdb
-vgcreate cinder-volumes /dev/vdb
+pvcreate /dev/sdb
+vgcreate cinder-volumes /dev/sdb
 ```
 
-- Tạo File chứa mật khẩu mặc định
+- Tạo mật khẩu mặc định 
 
 ```
 kolla-genpwd
 ```
 
-Hoặc
-
-```
-cd kolla-ansible/tools
-./generate_passwords.py
-```
 
 - Cấu hình tuỳ chọn triển khai Kolla-Ansible
 
@@ -167,9 +173,9 @@ nano /etc/kolla/globals.yml
 ---
 kolla_base_distro: "ubuntu"
 kolla_install_type: "source"
-openstack_release: "train"
-kolla_internal_vip_address: 192.168.56.101
-network_interface: enp0s9
+openstack_release: "xena"
+kolla_internal_vip_address: 10.0.2.15
+network_interface: enp0s3
 neutron_external_interface: enp0s8
 nova_compute_virt_type: "qemu"
 enable_haproxy: "no"
@@ -178,19 +184,10 @@ enable_cinder_backup: "no"
 enable_cinder_backend_lvm: "yes"
 ```
 
-![alt](./img2/global.png)
 
-- **Lưu ý:**
-  - kolla_install_type: Mã nguồn sử dụng khi triển khai Openstack, có 2 loại:
-    - Cài từ Source Code: source
-    - Cài từ File binary: binary
-  - openstack_release: Phiên bản cài đặt
 
----
-
-**3. Deployment**
-
-**NOTE:** *Nếu các bước trên đã thực hiện thành công và không có lỗi. Chúng ta nên snapshot lại từ bước này để có thể chỉnh sửa và làm lại nếu có nhiều lỗi. Thường từ bước này nếu lỗi, bạn nên xem lại file cấu hình global.yml và thay đổi các thông số phù hợp.*
+### Deploymet: 
+*Thành công hay thất bại phụ thuộc hết vào bước này =))"
 
 - Khởi tạo môi trường dành cho Openstack Kolla
 
@@ -198,15 +195,14 @@ enable_cinder_backend_lvm: "yes"
 kolla-ansible -i all-in-one bootstrap-servers
 ```
 
-![alt](./img2/boots.png)
+![alt](./imgs/6-boots.png)
 
 - Kiểm tra thiết lập Kolla Ansible
 
 ```
 kolla-ansible -i all-in-one prechecks
 ```
-
-![alt](./img2/precheck3.png)
+*bước này chạy được code vui quá quên mất chụp ảnh kết quả ạ :((*
 
 - Tải các Image Openstack
 
@@ -214,17 +210,17 @@ kolla-ansible -i all-in-one prechecks
 kolla-ansible -i all-in-one pull
 ```
 
-![alt](./img2/pull.png)
+![alt](./imgs/7-pull.png)
 
 - Cài đặt Openstack
 
-*2 Bước này có vẻ tốn hơi nhiều time :') rất hồi hộp vì sợ fail...sau n lần thử*
+*Bước final tiến đến thành công =))"
 
 ```
 kolla-ansible -i all-in-one deploy
 ```
 
-![alt](./img2/deploy.png)
+![alt](./imgs/8-deploy.png)
 
 *Bước này nếu lúc làm bạn SSH có thể bị mất kết nối giữa chừng, nên chạy các câu lệnh này trực tiếp trong VM*
 
@@ -234,11 +230,10 @@ kolla-ansible -i all-in-one deploy
 kolla-ansible -i all-in-one post-deploy
 ```
 
-![alt](./img2/post-deploy.png)
-
+![alt](./imgs/9-deploy2.png)
+Lưu ý: Sau khi hoàn thành mỗi bước các bạn nên snapshot để tránh trường hợp lỗi có thể sảy r
 ---
-
-**4. Cài đặt Openstack Client**
+### Cài  Openstack CLI
 
 - Truy cập môi trường và cài đặt gói Openstack Client
 
@@ -246,17 +241,14 @@ kolla-ansible -i all-in-one post-deploy
 pip install python-openstackclient python-glanceclient python-neutronclient
 source /etc/kolla/admin-openrc.sh
 ```
-
-Kiểm tra dịch vụ
+- kiểm tra dịch vụ
 
 ```
+source /etc/kolla/admin-openrc.sh
 openstack token issue
 ```
-![alt](./img2/issue.png)
 
----
-
-**5. Đăng nhập vào Horizon**
+### Đăng nhập vào Horizon
 
 - Lấy mật khẩu tài khoản Admin
 
@@ -267,18 +259,18 @@ cat /etc/kolla/passwords.yml | grep keystone_admin
 - Kết quả
 
 ```
-keystone_admin_password: O388svwRruD7uXA9s6Ls6nmVUfu90bpm60RJPlHS
+keystone_admin_password: 4OI0CZ5bIEj3ylrsGgWzcj8ESgEBOox0pjYKXZhq
 ```
 
-![alt](./img2/keystone.png)
+![alt](./imgs/keystone.png)
 
-- Truy cập địa chỉ: <http://192.168.56.101/auth/login/?next=/>. Nhập các thông tin đăng nhập: *Admin / O388svwRruD7uXA9s6Ls6nmVUfu90bpm60RJPlHS*
+- Truy cập địa chỉ: <http://10.0.2.15/auth/login/?next=/>. Nhập các thông tin đăng nhập: *Admin / 4OI0CZ5bIEj3ylrsGgWzcj8ESgEBOox0pjYKXZhq*
 
-![alt](./img2/openstack.png)
+![alt](./imgs/openstack.png)
 
 Nhập thông tin và *Log in* vào:
 
-![alt](./img2/instance.png)
+![alt](./imgs/instance.png)
 
 ---
 
