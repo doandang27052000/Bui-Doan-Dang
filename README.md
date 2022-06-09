@@ -479,7 +479,6 @@ Ta ping đến các hosts kiểm tra
 ansible -i hosts all -m ping
 ```
 
-![alt](./imgs/ping.png)
 
 Ta có`./playbook.yml` file sẽ như sau:
 
@@ -617,61 +616,57 @@ ansible-playbook -i .hosts  playbook.yml
 
 #### 5.2. Prometheus
 
-Truy cập vào `localhost:9090` để sử dụng **Prometheus**.
+Truy cập vào `localhost:9090` để sử dụng **Prometheus** và  kiểm tra các Targret.
 
-![alt](./imgs/prometheus1.png)
-
-Kiểm tra các Targret.
 
 ![alt](./imgs/prometheus1.png)
 
 
 Kiểm tra các Rules.
 
-![alt](./imgs/prometheus1.png)
+![alt](./imgs/prometheus2.png)
 
 #### 5.3. Alertmanager
 
-Truy cập vào `localhost:9090` để sử dụng **Prometheus**.
+Truy cập vào `localhost:9090` để kiểm tra **Alertmanager**.
 
-![alt](./imgs/prometheus1.png)
+![alt](./imgs/alertmanager.png)
 
+Sử dụng file test để kiểm tra thông báo đến slack. Ta có file test:
+
+```shell
+- hosts: nodes
+  gather_facts: false
+  become: yes
+  tasks:
+  - name: Stop running containers
+    docker_container:
+      name: "node-exporter"
+      state: stopped
+```
+Sau khi chạy file ta được kết quả.
+
+![alt](./imgs/alertmanager1.png)
+
+Kiểm tra trong slack thông báo đến.
+
+
+![alt](./imgs/alertmanager2.png)
 
 #### 5.4. Using Grafana
 
-Truy cập vào: `localhost:3000` to use **Grafana**. After that, login with default username `admin` and
-default password `admin`. Then change it to your new password.
+Truy cập vào: `localhost:3000` để dùng **Grafana**. Đăng nhập bằng tài khoản admin, mật khẩu admin
 
-<div align="center">
-  <img width="1500" src="assets/using-grafana-1.png" alt="Login and set password">
-</div>
+![alt](./imgs/grafana1.png)
 
-<div align="center">
-  <i>Login and set new password.</i>
-</div>
 
-Then, add a **Prometheus** data source to **Grafana**. Check this [article](https://grafana.com/docs/grafana/latest/datasources/add-a-data-source/)
-to know how to do it.
+Ta thêm dữ liệu từ **Prometheus** vào **Grafana**. Truy cập [vào đây](https://grafana.com/docs/grafana/latest/datasources/add-a-data-source/) để xem hướng dẫn.
 
-After adding **Data sources**, we will use dashboard [Node Exporter Full](https://grafana.com/grafana/dashboards/1860). You
-can follow this [article](https://grafana.com/docs/grafana/latest/dashboards/export-import/) 
-to know how to import a dashboard into **Grafana**.
+![alt](./imgs/grafana2.png)
 
-<div align="center">
-  <img width="1500" src="assets/using-grafana-2.png" alt="Node Exporter dashboard">
-</div>
+Sau khi thêm **Data sources**, Ta dùng dashboard [Node Exporter Full](https://grafana.com/grafana/dashboards/1860).
 
-<div align="center">
-  <i>Node Exporter dashboard for 13.51.200.49.</i>
-</div>
-
-<div align="center">
-  <img width="1500" src="assets/using-grafana-3.png" alt="Node Exporter dashboard">
-</div>
-
-<div align="center">
-  <i>Node Exporter for 16.171.0.129.</i>
-</div>
+![alt](./imgs/grafana3.png)
 
 ## VI. References
 
