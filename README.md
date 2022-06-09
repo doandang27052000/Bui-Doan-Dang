@@ -678,4 +678,4 @@ Sau khi thêm **Data sources**, Ta dùng dashboard [Node Exporter Full](https://
 
 [4] [Example Ansible](https://github.com/ansible/ansible-examples)
 
-[5] [Pratice-2/Vo-Minh-Thien-Long]([https://github.com/ansible/ansible-examples](https://github.com/vietstacker/Viettel-Digital-Talent-Program-2022/tree/main/Practice-2/Vo-Minh-Thien-Long))
+[5] [Pratice-2/Vo-Minh-Thien-Long](https://github.com/vietstacker/Viettel-Digital-Talent-Program-2022/tree/main/Practice-2/Vo-Minh-Thien-Long)
