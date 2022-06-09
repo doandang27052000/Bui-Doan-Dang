@@ -43,7 +43,7 @@ Author: **Vo Minh Thien Long**
 
 ---- 
 
-## I. Prerequisites knowledge 
+## I. Prerequisites knowledge
 <a name='knowledge'></a> 
 
 ### 1. Ansible
@@ -172,9 +172,10 @@ often used in combination with time series databases such as  `Prometheus` and o
   <i>Grafana logo.</i>
 </div>
 
-## Chuẩn bị
-
-### 1. Monitoring machine
+## I. Cài đặt
+### 1. Bài 1: Deploy Prometheus + Exporter + Alertmanager + Grafana
+#### a. Chuẩn bị
+Prometheus + Alertmanager in a high availabilityĐể có thể chạy 
 <a name='monitoring-machine'></a>
 
 In this practice, I use **Ubuntu** `20.04` (LTS version **Focal**) in my virtual machine.
