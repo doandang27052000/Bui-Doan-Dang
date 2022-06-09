@@ -1,150 +1,31 @@
-# Using Ansible to deploy Prometheus, Grafana and Node Exporter
+# Sử dụng Ansible, Docker để deploy Prometheus, Exporter, Alertmanager, Grafana
 
 
-Author: **Vo Minh Thien Long**
 
-----        
-## Table of contents     
-[I. Prerequisites knowledge](#knowledge)
-- [1. Ansible](#ansible)
-- [2. Prometheus](#prometheus)
-- [3. Node Exporter](#node-exporter)           
-- [4. Grafana](#grafana)   
-
-[II. Prerequisites system](#system)
-- [1. Monitoring machine](#monitoring-machine)
-- [2. Node machines](#node-machines)
-
-[III. First set up](#setup)   
-- [1. Install Ansible](#install-ansible)  
-- [2. Configure Ansible](#configure-ansible)  
-- [3. Create `host` inventory](#host-inventory)  
-- [4. Create playbook](#create-playbook)  
-- [5. Deploy](#deploy)
-
-[IV. Applied Ansible Roles](#roles)
-- [1. Overview](#roles-overview)
-- [2. Ansible Galaxy](#ansible-galaxy)
-- [3. Role `common`](#role-common)
-- [4. Role `prometheus`](#role-prometheus)
-- [5. Role `grafana`](#role-grafana)
-- [6. Role `node-exporter`](#role-node-exporter)
-- [7. Deploy](#roles-deploy)
-
-[V. Applied `jinja2` template](#encountered-errors)
-- [1. Overview](#jinja2-overview)
-- [2. Role `common`](#jinja2-common)
-- [3. Role `prometheus`](#jinja2-prometheus)
-- [4. Role `grafana`](#jinja2-grafana)
-- [5. Role `node-exporter`](#jinja2-node-exporter)
-- [6. Deploy](#jinja2-deploy)
-
-[VI. References](#references)
-
----- 
-
-## I. Prerequisites knowledge
-<a name='knowledge'></a> 
-
-### 1. Ansible
-<a name='ansible'></a> 
-
-#### 1.1. Overview
-
-**Ansible** is an `open-source` software **provisioning**, **configuration 
-management**, and **application-deployment** tool enabling 
-**infrastructure as code**. 
-
-- Original author: **Michael DeHaan**
-- Developer(s): Ansible Community / Ansible Inc. / **Red Hat Inc** (since October 2015)
-- Initial release: **February 20, 2012**
-- Written in: **Python, PowerShell, Shell, Ruby**
-- Operating system: **Linux, Unix-like, MacOS, Windows**
-
-<div align="center">
-  <img width="300" src="assets/ansible-logo.png" alt="Ansible logo">
-</div>
-
-<div align="center">
-  <i>Ansible logo.</i>
-</div>
-
-#### 1.2. Architecture
-
-Ansible works by connecting to your nodes and pushing out small programs, 
-called **Ansible modules** to them. These programs are written to be resource
-models of the desired state of the system. 
-Ansible then _executes_ these modules (over `SSH` by default), 
-and _removes_ them when finished.
-
-<div align="center">
-  <img width="1500" src="assets/ansible-architecture.webp" alt="Ansible architecture">
-</div>
-
-<div align="center">
-  <i>Ansible architecture.</i>
-</div>
-
-#### 1.3. Glossary
-
-**Modules**
-
-- Modules are the units of work that Ansible ships out to remote machines.
-- Modules can be implemented in any language, including Perl, Bash, Ruby or Python. 
-- Modules just have to return JSON. 
-- Once modules are executed on remote machines, they are removed, so no long running daemons are used. 
+Author: **Bùi Doãn Đang**
 
 
-**Host**
+## I. Các kiến thức cơ bản 
+### 1. Prometheus
 
-- A host is simply a remote machine that Ansible manages. 
-- They can have individual variables assigned to them, and can also be organized in groups. 
+**Prometheus** là một bộ công cụ giám sát và cảnh báo hệ thống mã nguồn mở ban đầu được xây dựng bởi công ty SoundCloud. Kể từ khi thành lập vào năm 2012, nhiều công ty và tổ chức đã áp dụng Prometheus vào hệ thống và dự án này có một cộng đồng người dùng và nhà phát triển rất tích cực.
 
-**Playbooks**
+![alt](./imgs/prometheus.png)
 
-- Playbooks are the language by which Ansible **orchestrates**, **configures**, **administers**, or **deploys systems**. 
+**Một số tính năng**
+- Mô hình dữ liệu đa chiều – time series được xác định bởi tên của số liệu (metric) và các cặp khóa – giá trị (key/value).
+- Ngôn ngữ truy vấn linh hoạt.
+- Hỗ trợ nhiều chế độ biểu đồ.
+- Nhiều chương trình tích hợp và hỗ trợ bởi bên thứ 3.
+- Hoạt động cảnh báo vấn đề linh động dễ cấu hình.
+- Chỉ cần 1 máy chủ là có thể hoạt động được.
+- Hỗ trợ Push các time series thông qua một gateway trung gian.
+- Các máy chủ/thiết bị giám sát có thể được phát hiện thông qua service discovery hoặc cấu hình tĩnh.
+### 2. Node Exporter
 
-**Inventory**
+**Node Exporter**  là một chương trình exporter viết bằng ngôn ngữ Golang. Exporter là một chương trình được sử dụng với mục đích thu thập, chuyển đổi các metric không ở dạng kiểu dữ liệu chuẩn **Prometheus** sang chuẩn dữ liệu Prometheus
 
-- A file (by default, Ansible uses a simple **INI** format) that describes Hosts and Groups 
-in Ansible. 
-- Inventory can also be provided via an Inventory Script.
-
-**Roles**
-
-- Roles are units of organization in Ansible. 
-- Assigning a role to a group of hosts. 
-- A role may include applying certain variable values, certain tasks, and certain handlers. 
-
-**Task**
-
-- Playbooks exist to run tasks. 
-- Tasks combine an action (a module and its arguments) with a name. 
-- Handlers are also tasks, but they are a special kind of task that do not run unless they are notified by name when a task reports an underlying change on a remote system.
-
-### 2. Prometheus
-<a name='prometheus'></a> 
-
-**Prometheus** is an` open-source` **systems monitoring** and **alerting toolkit**. Prometheus collects and 
-stores its metrics as time series data, i.e. metrics information is stored with the 
-timestamp at which it was recorded, alongside optional key-value pairs called labels.
-
-<div align="center">
-  <img width="300" src="assets/prometheus-logo.png" alt="Prometheus logo">
-</div>
-
-<div align="center">
-  <i>Prometheus logo.</i>
-</div>
-
-### 3. Node Exporter
-<a name='node-exporter'></a> 
-
-**Node Exporter** is a _Prometheus Exporter_ can **fetch statistics** from an application in the format 
-used by that system, **convert those statistics** into `metrics` that Prometheus can utilize, 
-and then expose them on a Prometheus-friendly URL. 
-
-**Node Exporter** measures multiples `metrics` such as:
+**Node Exporter** tính toán một số `metrics` như:
 
 |   <!-- -->  | <!-- -->                                 |                                                                          
 |-------------|------------------------------------------|
@@ -153,24 +34,29 @@ and then expose them on a Prometheus-friendly URL.
 | **CPU**     | CPU Load, CPU Memory Disk                | 
 | **Network** | Network traffic, TCP flow, Connections   |
 
-### 4. Grafana
-<a name='grafana'></a> 
+### 3. Grafana
+Grafana là một giao diện/dashboard theo dõi hệ thống (opensource), hỗ trợ rất nhiều loại dashboard và các loại graph khác nhau để người quản trị dễ dàng theo dõi.
 
-**Grafana** is a _multi-platform_ `open source` **analytics** and **interactive visualization** web application.
-It provides charts, graphs, and alerts for the web when connected to supported data sources. 
+![alt](./imgs/grafana.png)
 
-**Grafana** is divided into a _front end_ and _back end_, written in `TypeScript` and `Go`, respectively.
+Grafana là một nền tảng open-source chuyên phục vụ mục đích theo dõi và đánh giá các số liệu thu được. Theo định nghĩa như vậy chúng ta có thể thấy tính ứng dụng của Grafana rất rộng chứ không chỉ trong khối IT.
 
-As a visualization tool, **Grafana** is a popular component in **monitoring stacks**, 
-often used in combination with time series databases such as  `Prometheus` and other data sources. 
 
-<div align="center">
-  <img width="300" src="assets/grafana-logo.svg" alt="Grafana logo">
-</div>
+### 4. Alertmanager
 
-<div align="center">
-  <i>Grafana logo.</i>
-</div>
+Alertmanager xử lý cảnh báo được gửi bởi ứng dụng như là Prometheus server. Nó có các cơ chế Grouping, inhibition, silence.
+
+* **Grouping**: Phân loại cảnh báo có các tính chất tương tự với nhau. Điều này thực sự hữu ích trong một hệ thống lớn với nhiều thông báo được gửi đồng thời. 
+	
+	Ví dụ: Một hệ thống với nhiều server mất kết nối đến cơ sở dữ liệu, thay vì rất nhiều cảnh báo được gửi về Alertmanager thì Grouping giuos cho việc giảm số lượng cảnh báo trùng lặp, thay vào đó là một cảnh báo để chúng ta có thể biết được chuyện gì đang xảy ra với hệ thống của bạn. 
+
+* **Inhibition**: là một khái niệm về việc chặn thông báo cho một số cảnh báo nhất định nếu các cảnh báo khác đã được kích hoạt.
+
+	Ví dụ: Một cảnh báo đang kích hoạt, thông báo cluster không thể truy cập (not reachable). Alertmanager có thể được cấu hình là tắt các cảnh báo khác liên quan đến cluster này nếu cảnh báo đó đang kích hoạt. Điều này lọc bớt những cảnh báo không liên quan đến vấn đề hiện tại.
+
+* **Silence**: Silence là một cách đơn giản để tắt cảnh báo trong một thời gian nhất định. Nó được cấu hình dựa trên việc match với các điều kiện thì sẽ không có cảnh báo nào được gửi khi đó.
+
+* **High avability**: Alertmanager hỗ trợ cấu hình để tạo một cluster với độ khả dụng cao.
 
 ## I. Chuẩn bị
 - Để có thể chạy **Prometheus + Alertmanager** với Ha high availability ta cần 2 node phân biệt là monitor và nodes. Trong bài báo cáo này, 2 node đều sử dụng HĐH ubuntu 20.04, 4G RAM và 64GB. 
