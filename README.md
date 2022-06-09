@@ -172,7 +172,7 @@ often used in combination with time series databases such as  `Prometheus` and o
   <i>Grafana logo.</i>
 </div>
 
-## II. Prerequisites system
+## II. Ch
 <a name='system'></a> 
 
 In this practice, I will use my current Virtual machine as a Host machine for
