@@ -172,226 +172,80 @@ often used in combination with time series databases such as  `Prometheus` and o
   <i>Grafana logo.</i>
 </div>
 
-## I. Cài đặt
-### 1. Bài 1: Deploy Prometheus + Exporter + Alertmanager + Grafana
-#### a. Chuẩn bị
-Prometheus + Alertmanager in a high availabilityĐể có thể chạy 
-<a name='monitoring-machine'></a>
+## I. Chuẩn bị
+- Để có thể chạy **Prometheus + Alertmanager** với Ha high availability ta cần 2 node phân biệt là monitor và nodes. Trong bài báo cáo này, 2 node đều sử dụng HĐH ubuntu 20.04, 4G RAM và 64GB. 
+- Ansible để deploy các phần mềm cần thiết.
 
-In this practice, I use **Ubuntu** `20.04` (LTS version **Focal**) in my virtual machine.
-You can check my previous practice to know how to create a virtual machine by Parallels Desktop
-for device with chip `ARM64`.
+## II. Cài đặt Prometheus + Exporter + Alertmanager + Grafana
 
-<div align="center">
-  <img width="1500" src="assets/monitoring-machine-system.png" alt="Monitoring machine's system">
-</div>
-
-<div align="center">
-  <i>Monitoring machine's system.</i>
-</div>
-
-### 2. Node machines
-<a name='node-machines'></a> 
-
-In this practice, I will create 2 virtual machines using **EC2** (Elastic Compute Cloud) 
-of **AWS** (Amazon Web Services). They also use **Ubuntu** `20.04`, similar to our
-host machine.
-
-Because this practice is not related to using **EC2** or **AWS**, so I won't talk about how
-to do it here. But of course you can check this 
-[article](https://medium.com/nerd-for-tech/how-to-create-a-ubuntu-20-04-server-on-aws-ec2-elastic-cloud-computing-5b423b5bf635) 
-to know how to create **EC2** instances.
-
-<div align="center">
-  <img width="300" src="assets/ec2-logo.png" alt="EC2 logo">
-</div>
-
-<div align="center">
-  <i>EC2 logo.</i>
-</div>
-
-And because we will need to get the `node_exporter` **metrics** from port `9100`, so ypu need
-to change the **Inbound rules** to allow access our **EC2** instances in port `9100`. By default,
-it only allows traffic to port `22` - for **SSH**.
-
-Here is the [article](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/authorizing-access-to-an-instance.html) where you can find how to change the **Inbound rules** for **EC2** instance.
-
-Then I will use **SSH** to connect with my 2 instances to check.
-
-<div align="center">
-  <img width="1500" src="assets/node-machine-1-system.png" alt="Node machine's system 1">
-</div>
-
-<div align="center">
-  <i>Node machine's system 1.</i>
-</div>
-
-<div align="center">
-  <img width="1500" src="assets/node-machine-2-system.png" alt="Node machine's system 2">
-</div>
-
-<div align="center">
-  <i>Node machine's system 2.</i>
-</div>
-
-**Note:** I only have 3 notes for you.
-- You can install `.pem` **only 1 time**, so please keep it in a safe place.
-- I didn't include my `.pem` file in this repository for security reason, so when you want to
-run my Ansible project, you have to create your all instances.
-- Don't forget to change the **Inbound rules**, if you don't later you will not able to
-get the `node_exporter` metrics.
-
-
-<a name='references'></a>
-
-## III. First set up
-<a name='setup'></a> 
-
-### 1. Install Ansible
-<a name='install-ansible'></a>
-
-First, refresh your system’s package index with:
-```shell
+### 1. Cài đặt Ansible
+Đầu tiên ta chạy câu lệnh:
+```
 sudo apt update
 ```
+Sau đó chạy các lệnh cài đặt các package cần thiết
 
-Then we install `software-properties-common`. This software provides an abstraction of 
-the used **apt repositories**. It allows you to easily _manage_ your distribution and _independent_ 
-software vendor software sources.
-
-```shell
+```
 sudo apt install software-properties-common
 ```
 
-Then we use `add-apt-repository` to add the **Ubuntu PPA** (Personal Package Archive):
-```shell
+Tiếp đến ta dùng `add-apt-repository` để thêm **Ubuntu PPA**:
+```
 sudo add-apt-repository --yes --update ppa:ansible/ansible
 ```
-
-Finally, you can install the Ansible software with:
-```shell
+Chạy câu lệnh cài đặt ansible:
+```
 sudo apt install ansible
 ```
 
-### 2. Configure Ansible
-<a name='configure-ansible'></a>
+### 2. Cấu hình Ansible
 
-I will create a `ansible.cfg` file in our current working directory (`./ansible.cfg`). Our
-Ansible configuration file uses **INI** format.
+Đầu tiên ta tạo file ansible.cfg và cấu hình như sau:
 
-By default, using `ansible.cfg` in working directory has the **second-highest priority** 
-in searching order, just after using environment variable `ANSIBLE_CONFIG`. In my opinion, 
-using `./ansible.cfg` is the easiest way to set up the configuration for each project independently.
-This is also **recommended** by Ansible to avoid _security rinks_.
-
-Final configuration in `./ansible.cfg`:
-
-```ini
+```
 [defaults]
 host_key_checking = False
-interpreter_python = /usr/bin/python3
+inventory = ./.hosts
 ```
-
-- `[defaults]` is the section that we want to configurate.
-- Setting `host_key_checking` to **False** to avoid _host key checking_ by the underlying tools 
-Ansible uses to connect to the host. This will prevent some unexpected problems when we use 
-**SSH** connection with private key files.
-
-- `interpreter_python` uses to set up the path to the Python interpreter. By default, it will `auto` 
-find the path, but it may lead to some wrong path, or some path that is **deprecated**, and will _not be
-supported_ in later version of Ansible.
 
   
-### 3. Create `host` inventory
-<a name='host-inventory'></a>
+### 3. Cấu hình inventory
 
-In this inventory, I will divide into 2 groups: `monitor` and `nodes`.
+Trong inventory ta chia làm 2 group: `monitor` and `nodes. Máy monitor sẽ là localhost và máy trạm sẽ là remote host.
 
-**1/ Monitoring:** Our control machine - `monitor`.
+Ta sẽ cấu hình file `.hosts` như sau:
 
-In here I will set the control host is `localhost` - which is the name of our control machine.
-
-And the connection type `ansible_connection` to the host I will set it to `local`. The `local`
-connection is the non-SSH connection type used to deploy the playbook to the control 
-machine itself.
-
-```ini
-[monitor]
-localhost ansible_connection=local
 ```
-
-**2/ Node:** Our 2 EC2 instance - `nodes`.
-
-Our 2 remote hosts are:
-
-- ec2-13-51-200-49.eu-north-1.compute.amazonaws.com
-- ec2-16-171-0-129.eu-north-1.compute.amazonaws.com
-
-The `ansible_ssh_user` is the **SSH** username to use - which by default of EC2 is **ubuntu**.
-
-And the `ansible_ssh_private_key_file` is the path to the private key file used by **SSH**. In this practice,
-this is 2 file **practice-2-1.pem** and **practice-2-1.pem**.
-  
-```ini
-[nodes]
-ec2-13-51-200-49.eu-north-1.compute.amazonaws.com ansible_user=ubuntu ansible_ssh_private_key_file=./practice-2-1.pem
-ec2-16-171-0-129.eu-north-1.compute.amazonaws.com ansible_user=ubuntu ansible_ssh_private_key_file=./practice-2-2.pem
-```
-
-Final inventory in `./host`:
-
-```ini
 [monitor]
 localhost ansible_connection=local
 
 [nodes]
-ec2-13-51-200-49.eu-north-1.compute.amazonaws.com ansible_ssh_user=ubuntu ansible_ssh_private_key_file=./practice-2-1.pem
-ec2-16-171-0-129.eu-north-1.compute.amazonaws.com ansible_ssh_user=ubuntu ansible_ssh_private_key_file=./practice-2-2.pem
+192.168.56.110 ansible_ssh_user=vm1 ansible_ssh_pass
 ```
 
-### 4. Create playbook
-<a name='create-playbook'></a>
+### 4. Xây dựng playbook
 
-Before creating the playbook, we need to come up with our deployment plan:
+Playbook sẽ thực hiện các bước sau
 
-1/ Install **Docker** for all groups.
+- Install **Docker** cho toàn bộ
+- Install **Prometheus** cho `monitor`.
+- Install **Grafana** cho `monitor`.
+- Install **Node Exporter** cho `nodes`.
+- Install **Alertmanager** cho `nodes`.
 
-2/ Install **Prometheus** (using Docker) for `monitor`.
-
-3/ Install **Grafana** (using Docker) for `monitor`.
-
-4/ Install **Node Exporter** (using Docker) for `nodes`.
-
-**Note:** Because we need to install a lot of packages, so for every task we will set
-`become: yes` in order to execute tasks with _root privileges_.
-
----
-
-Now, we will create tasks for each of those:
-
+Chi tiết các bước cài đặt như sao
 #### 4.1. Install Docker
-
-Because these task will apply for all group, so I will set `host: all`.
-
-First, install `aptitude`a tool for interfacing with the Linux package manager, and installing the required system packages. 
-
-We will use module `apt` - an **idempotent** module, which is an Ansible module to
-manage _apt_ package:
-- `name` is the package name (it can be a list, but here we only have **aptitude**).
-- `state` the desired package state, and **latest** ensures that the latest version is installed. 
-- `update_cache` set to **true** to run `apt-get update` before the operation.
-
+Ta đặt 'hosts:all' để có thể cài đặt docker cho toàn bộ các host.
+Đầu tiên, ta cài đặt công cụ `aptitude` để giao tiếp với trình quản lý gói Linux và cài đặt các gói hệ thống cần thiết.
 
 ```yaml
 - name: Install aptitude
   apt:
     name: aptitude
     state: latest
-    update_cache: true
 ```
 
-Next, we will use `apt` again to install required system packages. In this task,
-we will use `name` as the list of package names.
+Tiếp đến ta cài đặt các package cần thiết:
 
 ```yaml
 - name: Install required system packages
@@ -405,14 +259,9 @@ we will use `name` as the list of package names.
       - virtualenv
       - python3-setuptools
     state: latest
-    update_cache: true
 ```
 
-The Docker GPG key is added to verify the download, the official repository is added as a new package source. 
-To do this, we will use `apt_key`, a built-in Ansible module to add _apt_ key by `url` (URL to retrieve key). 
-
-Difference from `apt` module, `state` parameter here is used to ensure the key is **present** 
-(added).
+Thêm khóa GPG:
 
 ```yaml
 - name: Add Docker GPG apt Key
@@ -420,9 +269,7 @@ Difference from `apt` module, `state` parameter here is used to ensure the key i
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
 ```
-
-Then we will install the latest version of Docker from the official repository. Because I am using
-**Ubuntu** `20.04` - **Ubuntu Focal**, so will install the stable version `focal`.
+Tiếp đến ta download version mới nhất của docker:
 
 ```yaml
 - name: Add Docker Repository
@@ -431,45 +278,34 @@ Then we will install the latest version of Docker from the official repository. 
     state: present
 ```
 
-We continue using `apt` to install `docker-ce`.
+ Cài đặt `docker-ce`:
 
 ```yaml
 - name: Update apt and install docker-ce
   apt:
     name: docker-ce
     state: latest
-    update_cache: true
 ```
 
-Finally, we will use `pip` to install the module for Python.
+Cuối cùng ta sử dụng 'pip' để cài đặt module cho python
 
 ```yaml
 - name: Install Docker Module for Python
   pip:
     name: docker
 ```
-
-All the above tasks are **idempotent**.
-
 #### 4.2. Install Prometheus
 
-Because these task will apply for only `monitor` group, so I will set `host: monitor`.
+Ta đặt `host: monitor` để cài đặt promethues trên host
 
-First, use `docker_image` module to pull the image `prom/prometheus:latest`.
-We use  `name` for the image name and `source` parameter to pull the image from a registry.
+Trước tiên ta pull image về 
 ```yaml
 - name: Pull Prometheus Docker image
   docker_image:
     name: prom/prometheus:latest
     source: pull
 ```
-
-Then we create a `./prometheus.yml` file for **Prometheus** configuration. I am not going into detail with **Prometheus**, so I just
-briefly explain:
-- `scrape_interval`: we will get the `metrics` every 15 seconds.
-- `job`: we have 2 jobs here `promethues` to monitor our **Prometheus** instance and  `node`
-to monitor 2 EC2 instances.
-- `targets`: is the place we can get the `metrics`.
+Set up cho file prometheus.yml
 
 ```yaml
 global:
@@ -478,18 +314,33 @@ global:
 scrape_configs:
 - job_name: prometheus
   static_configs:
-  - targets: 
-    - localhost:9090
-    
+  - targets:
+    - 127.0.0.1:9090
+
 - job_name: node
   static_configs:
   - targets: 
-    - ec2-13-51-200-49.eu-north-1.compute.amazonaws.com:9100
-    - ec2-16-171-0-129.eu-north-1.compute.amazonaws.com:9100
-```
+    - 192.168.56.110:9100
 
-Then we copy our `promethus.yml` file to temporary directory **/tmp** for later use. `copy` is a
-built-in Ansible module, so it also is a **idempotent** module.
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      #- localhost:9093
+      - 192.168.56.110:9093
+
+rule_files:
+  - "/etc/prometheus/alert.rules.yml"
+```
+Copy file prometheus.yml vào /tmp
+
+```yaml
+- name: Copy alert.rules.yml file to 
+    copy:
+      src: alert.rules.yml
+      dest: /tmp
+```
+Tiếp đến ta copy file alert.rules.yml để thêm các cảnh báo, chi tiết file sẽ được hướng dẫn ở phần sau.
 
 ```yaml
 - name: Copy prometheus.yml file to /tmp
@@ -498,31 +349,25 @@ built-in Ansible module, so it also is a **idempotent** module.
     dest: /tmp
 ```
 
-Finally, create and run the **Prometheus** container by `docker_container` module.
-- `name` is the container name, here I set it is **prometheus**.
-- `image` is the image name, which is our recent pulled image **prom/prometheus:latest**.
-- `restart_policy` to set the container restart policy, equivalent with `restart_policy` in `docker-compose`.
-- `volumes`  is list of volumes to mount within the container, here you only mount our **prometheus.yml** file.
-- `ports` is list of volumes to mount within the container (here we use Prometheusdefault port `9090`).
-
+Cuối cùng ta chạy image bằng docker trên cổng 9090
 ```yaml
 - name: Run Prometheus Docker image
-  docker_container:
-    name: prometheus
-    image: prom/prometheus:latest
-    restart_policy: unless-stopped
-    volumes: /tmp/prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-    - "9090:9090"
+    docker_container:
+      name: prometheus
+      image: prom/prometheus:latest
+      restart_policy: unless-stopped
+      volumes: 
+      - /tmp/prometheus.yml:/etc/prometheus/prometheus.yml
+      - /tmp/alert.rules.yml:/etc/prometheus/alert.rules.yml
+      command:
+            - '--config.file=/etc/prometheus/prometheus.yml'
+      ports:
+      - "9090:9090"
 ```
-
-All the above tasks are **idempotent**.
 
 #### 4.3. Install Grafana
 
-Because these task will apply for only `monitor` group, so we can continue using `host: monitor`.
-
-Pull Grafana image.
+Tương tự như với Prometheus ta cũng thực hiên pull image.
 
 ```yaml
 - name: Pull Grafana Docker image
@@ -531,7 +376,7 @@ Pull Grafana image.
     source: pull
 ```
 
-Run the container Grafana.
+Chạy container
 
 ```yaml
 - name: Run Grafana Docker image
@@ -543,13 +388,12 @@ Run the container Grafana.
     - "3000:3000"
 ```
 
-All the above tasks are **idempotent**.
 
 #### 4.4. Install Node Exporter
 
-Because these task will apply for only `nodes` group, so I will set `host: nodes`.
+Tiếp đến cài đặt Node Exporter trên máy remote.
 
-Pull Node Exporter image.
+Thực hiện pull image:
 
 ```yaml
 - name: Pull Node Exporter Docker image
@@ -558,7 +402,7 @@ Pull Node Exporter image.
     source: pull
 ```
 
-Run the container Node Exporter.
+Chạy container Node Exporter.
 
 ```yaml
 - name: Run Node Exporter Docker image
@@ -570,38 +414,198 @@ Run the container Node Exporter.
     - "9100:9100"
 ```
 
-All the above tasks are **idempotent**.
+#### 4.5. Install Alertmanager
+Để đảm bảo tính HA, ta cài Alertmanager trên máy remote.
+
+Thực hiện pull image:
+
+```yaml
+- name: Pull Alertmanager Docker image
+    docker_image:
+      name: prom/alertmanager:latest
+      source: pull
+```
+
+Copy file alertmanager.yml vào /tmp. Cấu hình của file sẽ được đề cập đến ở phần sau.
+
+```yaml
+- name: alertmanager.yml file to /tmp
+    copy:
+      src: alertmanager.yml
+      dest: /tmp
+```
+Cuối cùng là chạy container.
+```yaml
+- name: Run Alertmanager Docker image
+    docker_container:
+      name: alertmanager
+      image: prom/alertmanager:latest
+      ports:
+      - "9093:9093"
+      restart_policy: unless-stopped
+      volumes:
+        - /tmp/alertmanager.yml:/alertmanager.yml
+      command:
+          - '--config.file=/alertmanager.yml'
+```
+#### 4.6. Thêm các cảnh báo
+Các cảnh báo được thêm trong file alert.rules.yml, để file có thể chạy được ta chú ý thêm dòng lệnh.
+
+```yaml
+rule_files:
+  - "/etc/prometheus/alert.rules.yml"
+```
+Tiếp đến ta định nghĩa các rule cần thiết đển monitoring host và container
+
+```yaml
+groups:
+- name: alert.rules
+  rules:
+  - alert: InstanceDown
+   # Condition for alerting
+    expr: up == 0
+    for: 1m
+   # Annotation - additional informational labels to store more information
+    annotations:
+      title: 'Instance {{ $labels.instance }} down'
+      description: '{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute.'
+   # Labels - additional labels to be attached to the alert
+    labels:
+        severity: 'critical'
+
+  - alert: HostOutOfMemory
+   # Condition for alerting
+    expr: node_memory_MemAvailable / node_memory_MemTotal * 100 < 25
+    for: 5m
+   # Annotation - additional informational labels to store more information
+    annotations:
+      title: 'Host out of memory (instance {{ $labels.instance }})'
+      description: 'Node memory is filling up (< 25% left)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}'
+   # Labels - additional labels to be attached to the alert
+    labels:
+        severity: 'warning'
+
+  - alert: HostHighCpuLoad
+   # Condition for alerting
+    expr: (sum by (instance) (irate(node_cpu{job="node_exporter_metrics",mode="idle"}[5m]))) > 80
+    for: 5m
+   # Annotation - additional informational labels to store more information
+    annotations:
+      title: 'Host high CPU load (instance {{ $labels.instance }})'
+      description: 'CPU load is > 80%\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}'
+   # Labels - additional labels to be attached to the alert
+    labels:
+        severity: 'warning'
+
+  - alert: HostOutOfDiskSpace
+   # Condition for alerting
+    expr: (node_filesystem_avail{mountpoint="/"}  * 100) / node_filesystem_size{mountpoint="/"} < 50
+    for: 5m
+   # Annotation - additional informational labels to store more information
+    annotations:
+      title: 'Host out of disk space (instance {{ $labels.instance }})'
+      description: 'Disk is almost full (< 50% left)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}'
+   # Labels - additional labels to be attached to the alert
+    labels:
+        severity: 'warning'
+  
+    # This rule can be very noisy in dynamic infra with legitimate container start/stop/deployment.
+  - alert: ContainerKilled
+    expr: time() - container_last_seen > 60
+    for: 0m
+    labels:
+      severity: warning
+    annotations:
+      summary: Container killed (instance {{ $labels.instance }})
+      description: "A container has disappeared\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+
+  #Container CPU usage is above 80% 
+  - alert: ContainerCpuUsage
+    expr: (sum(rate(container_cpu_usage_seconds_total{name!=""}[3m])) BY (instance, name) * 100) > 80
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: Container CPU usage (instance {{ $labels.instance }})
+      description: "Container CPU usage is above 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+  
+    # Container Memory usage
+  - alert: ContainerMemoryUsage
+    expr: (sum(container_memory_working_set_bytes{name!=""}) BY (instance, name) / sum(container_spec_memory_limit_bytes > 0) BY (instance, name) * 100) > 80
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: Container Memory usage (instance {{ $labels.instance }})
+      description: "Container Memory usage is above 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+```
+Ta thêm một vài rules như trên.
+
+#### 4.7 Đẩy cảnh báo lên slack
+Đầu tiên ta tạo tài khoản slack và đăng nhập vào.
+
+![alt](./imgs/slack1.png)
+
+Tiếp đến ta vào Manage app. 
+
+![alt](./imgs/slack2.png)
+
+Tìm và thêm Incoming WebHooks. Lấy API URL để thêm vào alertmanager.
+
+![alt](./imgs/slack3.png)
+
+Tiếp đến ta cấu hình Alertmanager như sau.
+
+```yaml
+global:
+  resolve_timeout: 1m
+
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'slack-notifications'
+receivers:
+- name: 'slack-notifications'
+  slack_configs:
+  - api_url: "your url"
+    channel: "your channel name"
+    send_resolved: true
+    
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'dev', 'instance']
+
+```
+Với 'api-url' lấy từ Incoming WebHooks.
 
 ### 5. Deploy
-<a name='deploy'></a>
 
-#### 5.1.  Using Ad-hoc command ping to all hosts
+#### 5.1.  Chạy playbook
+Ta ping đến các hosts kiểm tra
 
-```shell
+```
 ansible -i hosts all -m ping
 ```
 
-<div align="center">
-  <img width="1500" src="assets/ping-hosts.png" alt="Ad-hoc command ping">
-</div>
+![alt](./imgs/ping.png)
 
-<div align="center">
-  <i>Ad-hoc command ping.</i>
-</div>
-
-#### 5.2. Run our playbook
-
-Here is our final `./playbook.yml` file:
+Ta có`./playbook.yml` file sẽ như sau:
 
 ```yaml
 ---
 - hosts: all
+  become: true
   tasks:
   - name: Install aptitude
     apt:
       name: aptitude
       state: latest
-      update_cache: true
 
   - name: Install required system packages
     apt:
@@ -614,7 +618,6 @@ Here is our final `./playbook.yml` file:
         - virtualenv
         - python3-setuptools
       state: latest
-      update_cache: true
 
   - name: Add Docker GPG apt Key
     apt_key:
@@ -626,17 +629,18 @@ Here is our final `./playbook.yml` file:
       repo: deb https://download.docker.com/linux/ubuntu focal stable
       state: present
 
+      
   - name: Update apt and install docker-ce
     apt:
       name: docker-ce
       state: latest
-      update_cache: true
 
   - name: Install Docker Module for Python
     pip:
       name: docker
       
 - hosts: monitor
+  become: true
   tasks:
   - name: Pull Prometheus Docker image
     docker_image:
@@ -647,13 +651,22 @@ Here is our final `./playbook.yml` file:
     copy:
       src: prometheus.yml
       dest: /tmp
-    
+  
+  - name: Copy alert.rules.yml file to 
+    copy:
+      src: alert.rules.yml
+      dest: /tmp
+
   - name: Run Prometheus Docker image
     docker_container:
       name: prometheus
       image: prom/prometheus:latest
       restart_policy: unless-stopped
-      volumes: /tmp/prometheus.yml:/etc/prometheus/prometheus.yml
+      volumes: 
+      - /tmp/prometheus.yml:/etc/prometheus/prometheus.yml
+      - /tmp/alert.rules.yml:/etc/prometheus/alert.rules.yml
+      command:
+            - '--config.file=/etc/prometheus/prometheus.yml'
       ports:
       - "9090:9090"
 
@@ -684,21 +697,37 @@ Here is our final `./playbook.yml` file:
       restart_policy: unless-stopped
       ports: 
       - "9100:9100"
+
+  - name: Pull Alertmanager Docker image
+    docker_image:
+      name: prom/alertmanager:latest
+      source: pull
+
+  - name: alertmanager.yml file to /tmp
+    copy:
+      src: alertmanager.yml
+      dest: /tmp
+
+  - name: Run Alertmanager Docker image
+    docker_container:
+      name: alertmanager
+      image: prom/alertmanager:latest
+      ports:
+      - "9093:9093"
+      restart_policy: unless-stopped
+      volumes:
+        - /tmp/alertmanager.yml:/alertmanager.yml
+      command:
+          - '--config.file=/alertmanager.yml'
 ```
 
-Run `playbook.yml` using the command:
+Chạy playbook bằng command:
 
 ```shell
-ansible-playbook -i hosts  playbook.yml
+ansible-playbook -i .hosts  playbook.yml
 ```
 
-<div align="center">
-  <img width="1500" src="assets/run-playbook.png" alt="Run Ansible playbook">
-</div>
-
-<div align="center">
-  <i>Run Ansible playbook.</i>
-</div>
+![alt](./imgs/playbook.png)
 
 #### 5.3. Using Prometheus
 
@@ -758,576 +787,6 @@ to know how to import a dashboard into **Grafana**.
 <div align="center">
   <i>Node Exporter for 16.171.0.129.</i>
 </div>
-
-## Applied Ansible Roles
-<a name='roles'></a>
-
-### 1. Overview
-<a name='roles-overview'></a>
-
-Although we successfully deploy, but using Ansible in this way isn't a good habit.
-If you keep everything in a single playbook, when we want to add more task, or more group,
-it will be very hard to manipulate.
-
-**Ansible Roles** are a way to group multiple tasks together into one container to do the 
-automation in very effective manner with clean directory structures.
-
-- Allow you to break up the configurations.
-- Can be easily reuse the code.
-- Can be easily modify and will reduce the syntax errors.
-
-### 2. Ansible Galaxy
-<a name='ansible-galaxy'></a>
-
-**Ansible Galaxy** is a utility which lets you generate role scaffolding. The concept of an Ansible role is simple; it is a group of **variables**, **tasks**, **files**, and **handlers** stored 
-in a standardised file structure. The difficult part is to recall the directory structure, but there is help.
-
-The `ansible-galaxy` command has a sub-command that will create a directory skeleton for our role.
-
-```shell
-ansible-galaxy init <ROLE_NAME>
-```
-
-Use this command, we will have a basic structure of a Role as below:
-
-<div align="center">
-  <img width="300" src="assets/roles-directory.png" alt="Roles directory structure">
-</div>
-
-<div align="center">
-  <i>Roles directory structure.</i>
-</div>
-
-- **defaults**: default properties/vars;
-- **files**: static files to be copied to nodes;
-- **handlers**: actions to take on events;
-- **meta**: role meta data;
-- **tasks**: action to take, using modules;
-- **templates**: files generated dynamically;
-- **tests**: ansible test;
-- **vars**: role specific vars.
-
-We will use a directory name `roles`, which contains all of our roles.
-
-### 3. Role `common`
-<a name='role-common'></a>
-
-I defined `common` role is the role which 2 groups `monitor` and `nodes` use. This role
-will install Docker for the machine.
-
-```shell
-ansible-galaxy init roles/common
-```
-
-Change the `roles/common/tasks/main.yml` to:
-
-```yaml
----
-- name: Install aptitude
-  apt:
-    name: aptitude
-    state: latest
-    update_cache: true
-
-- name: Install required system packages
-  apt:
-    pkg:
-      - apt-transport-https
-      - ca-certificates
-      - curl
-      - software-properties-common
-      - python3-pip
-      - virtualenv
-      - python3-setuptools
-    state: latest
-    update_cache: true
-
-- name: Add Docker GPG apt Key
-  apt_key:
-    url: https://download.docker.com/linux/ubuntu/gpg
-    state: present
-
-- name: Add Docker Repository
-  apt_repository:
-    repo: deb https://download.docker.com/linux/ubuntu focal stable
-    state: present
-
-- name: Update apt and install docker-ce
-  apt:
-    name: docker-ce
-    state: latest
-    update_cache: true
-
-- name: Install Docker Module for Python
-  pip:
-    name: docker
-```
-
-### 4. Role `prometheus`
-<a name='role-prometheus'></a>
-
-I defined `prometheus` role is the role group `monitor` uses to install **Prometheus** by Docker.
-
-
-```shell
-ansible-galaxy init roles/prometheus
-```
-
-Change the `roles/prometheus/tasks/main.yml` to:
-
-```yaml
----
-- name: Pull Prometheus Docker image
-  docker_image:
-    name: prom/prometheus:latest
-    source: pull
-    
-- name: Copy prometheus.yml file to /tmp
-  copy:
-    src: prometheus.yml
-    dest: /tmp
-    
-- name: Run Prometheus Docker image
-  docker_container:
-    name: prometheus
-    image: prom/prometheus:latest
-    restart_policy: unless-stopped
-    volumes: /tmp/prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-    - "9090:9090"
-```
-
-Then we insert the file `prometheus.yml` to path `roles/prometheus/files`. As I wrote in the above
-section, `files` directory uses to store static file, in this case it its `prometheus.yml`.
-
-When we use `copy` module, its source directory is `/files`.
-
-### 5. Role `grafana`
-<a name='role-grafana'></a>
-
-I defined `grafana` role is the role group `monitor` uses to install **Grafana** by Docker.
-
-
-```shell
-ansible-galaxy init roles/grafana
-```
-
-Change the `roles/grafana/tasks/main.yml` to:
-
-```yaml
----
-- name: Pull Grafana Docker image
-  docker_image:
-    name: grafana/grafana-enterprise:latest
-    source: pull
-    
-- name: Run Grafana Docker image
-  docker_container:
-    name: grafana
-    image: grafana/grafana-enterprise:latest
-    restart_policy: unless-stopped
-    ports:
-    - "3000:3000"
-```
-
-### 5. Role `node-exporter`
-<a name='role-node-exporter'></a>
-
-I defined `node-exporter` role is the role group `nodes` uses to install **Node Exporter** by Docker.
-
-
-```shell
-ansible-galaxy init roles/node-exporter
-```
-
-Change the `roles/node-exporter/tasks/main.yml` to:
-
-```yaml
----
-- name: Pull Node Exporter Docker image
-  docker_image:
-    name: prom/node-exporter:latest
-    source: pull
-    
-- name: Run Node Exporter Docker image
-  docker_container:
-    name: node-exporter
-    image: prom/node-exporter:latest
-    restart_policy: unless-stopped
-    ports: 
-    - "9100:9100"
-```
-
-### 6. Deploy
-<a name='roles-deploy'></a>
-
-Change our `playbook.yml`, because now we are using roles here:
-
-```yaml
-- name: install docker
-  hosts: all
-  become: yes
-  roles:
-  - common
-
-- name: install monitoring stack
-  hosts: monitor
-  become: yes
-  roles:
-  - prometheus
-  - grafana
-
-- name: install node-exporter
-  hosts: nodes
-  become: yes
-  roles:
-  - node-exporter
-```
-
-You can see that, I apply role `common` to all group, `grafana` with `prometheus` for `monitor`,
-and `node-exporter` for `nodes`. 
-
-**Note:** Please remember to assign them `become: yes`.
-
-```yaml
----
-- hosts: all
-  tasks:
-  - name: Install aptitude
-    apt:
-      name: aptitude
-      state: latest
-      update_cache: true
-
-  - name: Install required system packages
-    apt:
-      name:
-        - apt-transport-https
-        - ca-certificates
-        - curl
-        - software-properties-common
-        - python3-pip
-        - virtualenv
-        - python3-setuptools
-      state: latest
-      update_cache: true
-
-  - name: Add Docker GPG apt Key
-    apt_key:
-      url: https://download.docker.com/linux/ubuntu/gpg
-      state: present
-
-  - name: Add Docker Repository
-    apt_repository:
-      repo: deb https://download.docker.com/linux/ubuntu focal stable
-      state: present
-
-  - name: Update apt and install docker-ce
-    apt:
-      name: docker-ce
-      state: latest
-      update_cache: true
-
-  - name: Install Docker Module for Python
-    pip:
-      name: docker
-      
-- hosts: monitor
-  tasks:
-  - name: Pull Prometheus Docker image
-    docker_image:
-      name: prom/prometheus:latest
-      source: pull
-    
-  - name: Copy prometheus.yml file to /tmp
-    copy:
-      src: prometheus.yml
-      dest: /tmp
-    
-  - name: Run Prometheus Docker image
-    docker_container:
-      name: prometheus
-      image: prom/prometheus:latest
-      restart_policy: unless-stopped
-      volumes: /tmp/prometheus.yml:/etc/prometheus/prometheus.yml
-      ports:
-      - "9090:9090"
-
-  - name: Pull Grafana Docker image
-    docker_image:
-      name: grafana/grafana-enterprise
-      source: pull
-    
-  - name: Run Grafana Docker image
-    docker_container:
-      name: grafana
-      image: grafana/grafana-enterprise
-      restart_policy: unless-stopped
-      ports:
-      - "3000:3000"
-    
-- hosts: nodes
-  tasks:
-  - name: Pull Node Exporter Docker image
-    docker_image:
-      name: prom/node-exporter:latest
-      source: pull
-    
-  - name: Run Node Exporter Docker image
-    docker_container:
-      name: node-exporter
-      image: prom/node-exporter:latest
-      restart_policy: unless-stopped
-      ports: 
-      - "9100:9100"
-```
-
-Run `playbook.yml` using the command:
-
-```shell
-ansible-playbook -i hosts  playbook.yml
-```
-
-<div align="center">
-  <img width="1500" src="assets/run-playbook-role.png" alt="Run Ansible playbook">
-</div>
-
-<div align="center">
-  <i>Run Ansible playbook.</i>
-</div>
-
-Congratulation, you have successfully deployed our project using **Roles**. However, there are stil
-a lot of other feature that we can use from **Roles**. We just only break them out into a smaller
-filer for easy manipulate, but didn't use all the power of **Roles**.
-
-Template is one of these (remember, just **one of these**, there still a lots). In Ansible,
-we will use `jinja2` to format.  Let's move to the next section to apply `jinja2` template 
-into our project.
-
-## V. Applied `jinja2` template
-<a name='jinja2'></a>
-
-
-### 1. Overview
-<a name='jinja2-overview'></a>
-
-If we don't use templating, when you change a keyword, you have to change it
-in every file that contains this keyword. For example, I want to change my OS from `linux` to
-`mac`. So for every task that depend on OS, we have to change from `linux` to `mac`.
-
-
-Ansible uses `jinja2` templating to enable` dynamic expressions` and access to **variables** and **facts**. 
-You can use templating with the template module. For example, you can create a template for 
-a configuration file, then deploy that configuration file to multiple environments and supply 
-the correct data (IP address, hostname, version) for each environment.
-
-### 2. Role `common`
-<a name='jinja2-common'></a>
-
-Now we are going to applied  `jinja2` to our `tasks/main.yml`:
-
-```yaml
----
-- name: Install aptitude
-  apt:
-    name: aptitude
-    state: latest
-    update_cache: true
-
-- name: Install required system packages
-  apt:
-    pkg:
-      - apt-transport-https
-      - ca-certificates
-      - curl
-      - software-properties-common
-      - python3-pip
-      - virtualenv
-      - python3-setuptools
-    state: latest
-    update_cache: true
-
-- name: Add Docker GPG apt Key
-  apt_key:
-    url: https://download.docker.com/{{ os.name }}/{{ os.distro }}/gpg
-    state: present
-
-- name: Add Docker Repository 
-  apt_repository:
-    repo: deb https://download.docker.com/{{ os.name }}/{{ os.distro }} {{ os.version }} stable
-    state: present
-
-- name: Update apt and install docker-ce
-  apt:
-    name: docker-ce
-    state: latest
-    update_cache: true
-
-- name: Install Docker Module for Python
-  pip:
-    name: docker
-```
-
-And set the value for it in `defaults/main.yml`:
-
-```yaml
----
-os:
- name: linux
- distro: ubuntu
- version: focal
-```
-
-Now, instead of hardcode the **operating system** in every place, you can be just simple change it
-in `defaults/main.yml`.
-
-### 3. Role `prometheus`
-<a name='jinja2-prometheus'></a>
-
-Because we use templating now, so instead of using `copy` module, we will use `template` module
-to copy our `prometheus.yml` file to temporary directory `/tmp`.
-
-Our new `tasks/main.yml`:
-
-```yaml
----
-- name: Pull Prometheus Docker image prom/prometheus:{{ version }}
-  docker_image:
-    name: prom/prometheus:{{ version }}
-    source: pull
-    
-- name: Create file /tmp/prometheus.yml from template
-  template:
-    src: prometheus.yml.j2
-    dest: /tmp/prometheus.yml
-    
-- name: Run Prometheus Docker image prom/prometheus:{{ version }}
-  docker_container:
-    name: prometheus
-    image: prom/prometheus:{{ version }}
-    restart_policy: unless-stopped
-    volumes: /tmp/prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-    - "9090:9090"
-```
-
-Then we will use `jinja2` to configurate `prometheus.yml`. I will create
-a template file in `/templates/prometheus.yml.j2`:
-
-```yaml
-#jinja2: lstrip_blocks: "True"
----
-global:
-  scrape_interval: {{ scrape_interval }}
-
-scrape_configs:
-- job_name: prometheus
-  static_configs:
-  - targets:
-{% for server in groups['monitor'] %}
-    - {{ server }}:9090
-{% endfor %}
-
-- job_name: node
-  static_configs:
-  - targets:
-{% for server in groups['nodes'] %}
-    - {{ server }}:9100
-{% endfor %}
-```
-
-`groups` is the default variable of Ansible Jinja2, which is the list of host in a specify host,
-so we don't have to declare them. By using `group`, when we add more hosts to our `nodes` group,
-it will automatically change the file `prometheus.yml`. We don't have to do anything.
-
-We just have to set the value of `version` and 
-`scrape_interval` in `defaults/main.yml`:
-
-```yaml
----
-version: latest
-scrape_interval: 15s
-```
-
-### 4. Role `grafana`
-<a name='jinja2-grafana'></a>
-
-Applied  `jinja2` to our `tasks/main.yml`:
-
-```yaml
----
-- name: Pull Grafana Docker image grafana/grafana-enterprise:{{ version }}
-  docker_image:
-    name: grafana/grafana-enterprise:{{ version }}
-    source: pull
-    
-- name: Run Grafana Docker image grafana/grafana-enterprise:{{ version }}
-  docker_container:
-    name: grafana
-    image: grafana/grafana-enterprise:{{ version }}
-    restart_policy: unless-stopped
-    ports:
-    - "3000:3000"
-```
-
-And set the value for it in `defaults/main.yml`:
-
-```yaml
----
-version: latest
-```
-
-### 5. Role `node-exporter`
-<a name='jinja2-node-exporter'></a>
-
-Applied  `jinja2` to our `tasks/main.yml`:
-
-```yaml
----
-- name: Pull Node Exporter Docker image prom/node-exporter:latest:{{ version }}
-  docker_image:
-    name: prom/node-exporter:{{ version }}
-    source: pull
-    
-- name: Run Node Exporter Docker image prom/node-exporter:latest:{{ version }}
-  docker_container:
-    name: node-exporter
-    image: prom/node-exporter:latest:{{ version }}
-    restart_policy: unless-stopped
-    ports: 
-    - "9100:9100"
-```
-
-And set the value for it in `defaults/main.yml`:
-
-```yaml
----
-version: latest
-```
-
-### 6. Deploy
-<a name='jinja2-deploy'></a>
-
-Run `playbook.yml` using the command:
-
-```shell
-ansible-playbook -i hosts  playbook.yml
-```
-
-<div align="center">
-  <img width="1500" src="assets/run-playbook-templating.png" alt="Run Ansible playbook">
-</div>
-
-<div align="center">
-  <i>Run Ansible playbook.</i>
-</div>
-
-We have successfully built an Ansible project to deploy Prometheus, Grafana and Node Exporter.
-We have improved our project from a single long, hard-coding playbook into an easily manipulate
-and extendable project.
-
-We also applied templating into our project using `jinja2`. Our project now is better than before
-alots.
 
 ## VI. References
 
