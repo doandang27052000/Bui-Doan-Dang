@@ -1,7 +1,6 @@
 # Sử dụng Ansible, Docker để deploy Prometheus, Exporter, Alertmanager, Grafana
 
 
-
 Author: **Bùi Doãn Đang**
 
 
@@ -671,11 +670,12 @@ Sau khi thêm **Data sources**, Ta dùng dashboard [Node Exporter Full](https://
 ## VI. References
 
 
-[2] [Prometheus website](https://prometheus.io/)
+[1] [Prometheus website](https://prometheus.io/)
 
-[3] [Grafana website](https://grafana.com/)
+[2] [Grafana website](https://grafana.com/)
 
-[5] [Install Docker by Ansible](https://www.digitalocean.com/community/tutorials/how-to-use-ansible-to-install-and-set-up-docker-on-ubuntu-20-04)
+[3] [Install Docker by Ansible](https://www.digitalocean.com/community/tutorials/how-to-use-ansible-to-install-and-set-up-docker-on-ubuntu-20-04)
 
+[4] [Example Ansible](https://github.com/ansible/ansible-examples)
 
-[7] [Example Ansible](https://github.com/ansible/ansible-examples)
+[5] [Pratice-2/Vo-Minh-Thien-Long]([https://github.com/ansible/ansible-examples](https://github.com/vietstacker/Viettel-Digital-Talent-Program-2022/tree/main/Practice-2/Vo-Minh-Thien-Long))
