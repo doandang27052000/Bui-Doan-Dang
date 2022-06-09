@@ -615,32 +615,31 @@ ansible-playbook -i .hosts  playbook.yml
 
 ![alt](./imgs/playbook.png)
 
-#### 5.3. Using Prometheus
+#### 5.2. Prometheus
 
-Go to URL: `localhost:9090` to use **Prometheus**. You can use this [website](https://prometheus.io/docs/introduction/overview/) to learn how to
-use **Prometheus**.
+Truy cập vào `localhost:9090` để sử dụng **Prometheus**.
 
-<div align="center">
-  <img width="1500" src="assets/using-prometheus-1.png" alt="Execute an expression">
-</div>
+![alt](./imgs/prometheus1.png)
 
-<div align="center">
-  <i>Execute an expression in Prometheus.</i>
-</div>
+Kiểm tra các Targret.
 
-Go to `Status` > `Targets` to check status of the targets.
+![alt](./imgs/prometheus1.png)
 
-<div align="center">
-  <img width="1500" src="assets/using-prometheus-2.png" alt="Check targets status">
-</div>
 
-<div align="center">
-  <i>Check targets status in Prometheus.</i>
-</div>
+Kiểm tra các Rules.
+
+![alt](./imgs/prometheus1.png)
+
+#### 5.3. Alertmanager
+
+Truy cập vào `localhost:9090` để sử dụng **Prometheus**.
+
+![alt](./imgs/prometheus1.png)
+
 
 #### 5.4. Using Grafana
 
-Go to URL: `localhost:3000` to use **Grafana**. After that, login with default username `admin` and
+Truy cập vào: `localhost:3000` to use **Grafana**. After that, login with default username `admin` and
 default password `admin`. Then change it to your new password.
 
 <div align="center">
@@ -676,16 +675,12 @@ to know how to import a dashboard into **Grafana**.
 
 ## VI. References
 
-[1] [Ansible website](https://www.ansible.com/)
 
 [2] [Prometheus website](https://prometheus.io/)
 
 [3] [Grafana website](https://grafana.com/)
 
-[4] [Install Ansible](https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-ansible-on-ubuntu-20-04)
-
 [5] [Install Docker by Ansible](https://www.digitalocean.com/community/tutorials/how-to-use-ansible-to-install-and-set-up-docker-on-ubuntu-20-04)
 
-[6] [Ansible Galaxy website](https://galaxy.ansible.com/)
 
 [7] [Example Ansible](https://github.com/ansible/ansible-examples)
