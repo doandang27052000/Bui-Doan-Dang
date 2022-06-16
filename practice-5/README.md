@@ -150,7 +150,7 @@ docker run -d --name kibana --net elasticnet -p 5601:5601 kibana:7.8.1
 
 ![alt](./imgs/elasticsearch4.png)
 
-
+Sau khi chạy thì máy khá lag nên em không đẩy được log lên elasticsearch local :((
 ### 5. Một số câu lệnh phổ biến
 #### 5.1 Match query
 Ta bắt đầu với câu lệnh truy vấn đơn giản nhất:
