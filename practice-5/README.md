@@ -5,12 +5,26 @@
   - [1. Elasticsearch là gì?](#1-Elasticsearch-là-gì?)
   - [2.Cách thức hoạt động Elasticsearch](#2-Cách-thức-hoạt-động-Elasticsearch)
   - [3. Các khái niệm liên quan đến Elasticsearch](#3-Các-khái-niệm-liên-quan-đến-Elasticsearch)
+   - [3.1 Document](#31-Document)
+   - [3.2 Inverted Index](#32-Inverted-Index)
+   - [3.3 Shard h](#33-Shard)
+   - [3.4 Node ](#34-Node)
+   - [3.5 Cluster](#34-Cluster)
   - [4. Cài đặt Elasticsearch](#4-Cài-đặt-Elasticsearch)
   - [5. Một số câu lệnh phổ biến](#5-Một-số-câu-lệnh-phổ-biến)
+   - [5.1 Match query](#51-Match-query)
+   - [5.2 String query](#52-String-query)
+   - [5.3 Range query](#53-Range-query)
+   - [5.4 Multi match query](#54-Multi-match-query)
 - [II. Thực hành 1](#II-Thực-hành-1)
   - [1. Kiến thức cơ bản](#1-Kiến-thức-cơ-bản)
+   - [1.1 Kibana](#11-Kibana)
+   - [1.2 Fluentd](#12-Fluentd)
   - [2. Chuẩn bị](#2-Chuẩn-bị)
   - [3. Tiến hành cài đặt](#3-Tiến-hành-cài-đặt)
+   - [3.1 Viết docker-compose.yml ](#31-Viết-docker-compose.yml )
+   - [3.2 Viết Dockerfile và file config](#32-Viết-Dockerfile-và-file-config)
+   - [3.3 Đẩy log flask và nginx vào fluentd](#33-Đẩy-log-flask-và-nginx-vào-fluentd)
   - [4. Kết quả](#4-Kết-quả)
 ---
 
@@ -369,8 +383,7 @@ Tạo Data view và xem kết quả:
 
 ![alt](./imgs/es4.png)
 
-
-Ta thấy thông tin được đẩy lên ...
+So sánh log đẩy lên thông tin khớ với log của flask.
 ## VI. References
 
 
