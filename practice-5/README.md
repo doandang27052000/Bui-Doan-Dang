@@ -1,11 +1,21 @@
 
 #  Tìm hiểu về Elasticsearch
-
-
+## Mục lục
+- [I. Bài tập 1](#I.-Bài-tập-1)
+  - [1. Elasticsearch là gì?](#1.-Elasticsearch-là-gì?)
+  - [2.Cách thức hoạt động Elasticsearch](#2.Cách-thức-hoạt-động-Elasticsearch)
+  - [3. Các khái niệm liên quan đến Elasticsearch](#3.-Các-khái-niệm-liên-quan-đến-Elasticsearch)
+  - [4. Cài đặt Elasticsearch](#4.-Cài-đặt-Elasticsearch)
+  - [5. Một số câu lệnh phổ biến](#5.-Một-số-câu-lệnh-phổ-biến)
+- [II. Thực hành 1](#II.-Thực-hành-1)
+  - [1. Kiến thức cơ bản](#1.-Kiến-thức-cơ-bản)
+  - [2. Chuẩn bị](#2.-Chuẩn-bị)
+  - [3. Tiến hành cài đặt](#3.-Tiến-hành-cài-đặt)
+  - [4. Kết quả](#4.-Kết-quả)
 Author: **Bùi Doãn Đang**
 
 
-## I. Bải tập
+## I. Bài tập 1
 
 ### 1. Elasticsearch là gì?
 
@@ -192,7 +202,7 @@ Các hàm so sánh:
 }
 
 ```
-## II. Thực hành
+## II. Thực hành 1
 ### 1. Kiến thức cơ bản
 #### 1.1 Kibana
 **Kibana** là một nền tảng phân tích hiển thị dữ liệu từ ```Elasticsearch``` một cách trực quan dễ sử dụng,Kibana cũng là một công cụ mã nguồn mở miễn phí, cho tất cả mọi người sử dụng. Kibana cung cấp các tính năng cho người dùng quản lý như biểu đồ cột, biểu đồ đường, biểu đồ tròn, biểu đồ nhiệt và nhiều loại chart khác nữa.
@@ -338,7 +348,7 @@ docker logs -f --tail 100 flask
 ```
 ![alt](./imgs/result3.png)
 
-### Kết quả
+### 4. Kết quả
 
 Ta truy cập vào 27.71.229.80:6501 để kiểm tra:
 
