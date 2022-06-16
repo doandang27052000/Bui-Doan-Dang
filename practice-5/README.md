@@ -1,17 +1,17 @@
 
 #  Tìm hiểu về Elasticsearch
 ## Mục lục
-- [I. Bài tập 1](#I.-Bài-tập-1)
-  - [1. Elasticsearch là gì?](#1.-Elasticsearch-là-gì?)
-  - [2.Cách thức hoạt động Elasticsearch](#2.Cách-thức-hoạt-động-Elasticsearch)
-  - [3. Các khái niệm liên quan đến Elasticsearch](#3.-Các-khái-niệm-liên-quan-đến-Elasticsearch)
-  - [4. Cài đặt Elasticsearch](#4.-Cài-đặt-Elasticsearch)
-  - [5. Một số câu lệnh phổ biến](#5.-Một-số-câu-lệnh-phổ-biến)
-- [II. Thực hành 1](#II.-Thực-hành-1)
-  - [1. Kiến thức cơ bản](#1.-Kiến-thức-cơ-bản)
-  - [2. Chuẩn bị](#2.-Chuẩn-bị)
-  - [3. Tiến hành cài đặt](#3.-Tiến-hành-cài-đặt)
-  - [4. Kết quả](#4.-Kết-quả)
+- [I. Bài tập 1](#I-Bài-tập-1)
+  - [1. Elasticsearch là gì?](#1-Elasticsearch-là-gì?)
+  - [2.Cách thức hoạt động Elasticsearch](#2-Cách-thức-hoạt-động-Elasticsearch)
+  - [3. Các khái niệm liên quan đến Elasticsearch](#3-Các-khái-niệm-liên-quan-đến-Elasticsearch)
+  - [4. Cài đặt Elasticsearch](#4-Cài-đặt-Elasticsearch)
+  - [5. Một số câu lệnh phổ biến](#5-Một-số-câu-lệnh-phổ-biến)
+- [II. Thực hành 1](#II-Thực-hành-1)
+  - [1. Kiến thức cơ bản](#1-Kiến-thức-cơ-bản)
+  - [2. Chuẩn bị](#2-Chuẩn-bị)
+  - [3. Tiến hành cài đặt](#3-Tiến-hành-cài-đặt)
+  - [4. Kết quả](#4-Kết-quả)
 Author: **Bùi Doãn Đang**
 
 
