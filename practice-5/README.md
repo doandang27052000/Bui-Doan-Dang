@@ -121,6 +121,9 @@ docker run -d --name kibana --net elasticnet -p 5601:5601 kibana:7.8.1
 ![alt](./imgs/elasticsearch3.png)
 
 
+![alt](./imgs/elasticsearch4.png)
+
+
 ### 5. Một số câu lệnh phổ biến
 #### 5.1 Match query
 Ta bắt đầu với câu lệnh truy vấn đơn giản nhất:
@@ -325,6 +328,8 @@ docker-compose up -d
 Ta được kết quả:
  
  ![alt](./imgs/result2.png)
+ 
+ ![alt](./imgs/result21.png)
 
 Kiểm tra log:
 
@@ -335,7 +340,7 @@ docker logs -f --tail 100 flask
 
 ### Kết quả
 
-Ta truy cập vào 27.71.229.80:9200 để kiểm tra:
+Ta truy cập vào 27.71.229.80:6501 để kiểm tra:
 
 ![alt](./imgs/es1.png)
 
