@@ -189,8 +189,170 @@ Các hàm so sánh:
 }
 
 ```
+## II. Thực hành
+### 1. Kiến thức cơ bản
+#### 1.1 Kibana
+**Kibana** là một nền tảng phân tích hiển thị dữ liệu từ ```Elasticsearch``` một cách trực quan dễ sử dụng,Kibana cũng là một công cụ mã nguồn mở miễn phí, cho tất cả mọi người sử dụng. Kibana cung cấp các tính năng cho người dùng quản lý như biểu đồ cột, biểu đồ đường, biểu đồ tròn, biểu đồ nhiệt và nhiều loại chart khác nữa.
+
+![alt](./imgs/kibana.png)
+
+#### 1.2 Fluentd
+
+**Fluentd** là một bộ thu thập dữ liệu open-souce được thiết kế để thống nhất cơ sở hạ tầng ghi log . Nó được thiết kế để tập hợp các kỹ sư vận hành, kỹ sư ứng dụng và kỹ sư dữ liệu lại với nhau bằng cách làm cho việc thu thập và lưu trữ log trở nên đơn giản và có thể mở rộng.
+
+![alt](./imgs/fluentd.png)
 
 
+**Yêu cầu:** Đẩy log của các service đã làm ở Practice-3 vào fluentd, từ fluentd đẩy lên cụm ES.
+
+### 2. Chuẩn bị
+Để cài đặt được fluentd và webbapp ta cần chuẩn bị: 
+- Máy chủ để build image
+- Docker và kiến thức về Docker [(Hướng dẫn cài đặt)](https://vsudo.net/blog/docker-ubuntu.html)
+- Docker-compose và kiến thức về Docker-compose [(Hướng dẫn cài đặt)](https://thuanbui.me/huong-dan-cai-dat-docker-docker-compose-tren-ubuntu-20-04/).
+
+### 3. Tiến hành cài đặt
+#### 3.1 Viết docker-compose.yml 
+Khởi tạo thư mục.
+```
+mkdir fluentd
+```
+Di chuyển vào thư mục mới tạo.
+
+```
+cd fluentd
+```
+
+Tiếp theo, tạo file <code>docker-compose.yml</code>:
+
+```
+nano docker-compose.yml
+```
+
+Ta thêm nội dung:
+```yaml
+version: '3'
+services:
+  fluentd:
+      build: .
+      container_name: fluentd
+      volumes:
+        - ./:/fluentd/etc
+      ports:
+        - "24224:24224"
+```
+#### 3.2 Viết Dockerfile và file config
+Tiếp đến ta xây dựng Dockerfile cho fluentd.
+
+```
+nano Dockerfile
+```
+
+Thêm nội dung như sau:
+
+```
+FROM fluent/fluentd:v1.9
+USER root
+
+RUN apk add --no-cache --update --virtual .build-deps \
+    sudo build-base ruby-dev \
+    && gem install fluent-plugin-elasticsearch \
+    && gem sources --clear-all \
+    && apk del .build-deps \
+    && rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem
+
+USER fluent
+```
+Cuối cùng ta tạo file config cho fluentd:
+
+```
+nano fluent.conf
+```
+
+Ghi nôi dung
+
+```
+<source>
+  @type forward
+  port 24224
+  bind 0.0.0.0
+</source>
+
+
+<match *.**>
+  @type copy
+  <store>
+    @type elasticsearch
+    host  27.71.229.80
+    port 9200
+    logstash_format true
+    logstash_prefix your_prefix
+    include_tag_key true
+  </store>
+  <store>
+    @type stdout
+  </store>
+</match>
+```
+Chạy câu lệnh để build image:
+
+```
+docker-compose up -d
+```
+
+Kiểm tra kết quả:
+
+![alt](./imgs/result1.png)
+
+
+#### 3.3 Đẩy log flask và nginx vào fluentd
+Ta vào thư mục chưa flaskapp và thêm longging vào docker-compose.yml khi build image của flask và nginx
+
+```
+logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: "0.0.0.0:24224"
+        tag: flask or nginx
+ ```
+ 
+ Chạy lệnh để build:
+ 
+ ```
+docker-compose up -d
+ ```
+
+Ta được kết quả:
+ 
+ ![alt](./imgs/result2.png)
+
+Kiểm tra log:
+
+```
+docker logs -f --tail 100 flask
+```
+![alt](./imgs/result3.png)
+
+### Kết quả
+
+Ta truy cập vào 27.71.229.80:9200 để kiểm tra:
+
+![alt](./imgs/es1.png)
+
+Kiểm tra log đã đẩy lên chưa:
+
+![alt](./imgs/es2.png)
+
+Tạo Data view và xem kết quả:
+
+![alt](./imgs/es3.png)
+
+Đối chiếu với log flask:
+
+![alt](./imgs/es4.png)
+
+
+Ta thấy thông tin được đẩy lên ...
 ## VI. References
 
 
