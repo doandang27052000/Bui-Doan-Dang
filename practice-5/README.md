@@ -12,8 +12,7 @@
   - [2. Chuẩn bị](#2-Chuẩn-bị)
   - [3. Tiến hành cài đặt](#3-Tiến-hành-cài-đặt)
   - [4. Kết quả](#4-Kết-quả)
-
-
+---
 
 
 Author: **Bùi Doãn Đang**
