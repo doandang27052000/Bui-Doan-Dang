@@ -365,8 +365,6 @@ Ta thấy thông tin được đẩy lên ...
 
 [2] [Elasticsearch là gì?](https://viblo.asia/p/elasticsearch-la-gi-1Je5E8RmlnL)
 
-[3] [Install Docker by Ansible](https://www.digitalocean.com/community/tutorials/how-to-use-ansible-to-install-and-set-up-docker-on-ubuntu-20-04)
+[3] [How to install elasticsearch](https://www.digitalocean.com/community/tutorials/how-to-install-elasticsearch-logstash-and-kibana-elk-stack-on-ubuntu-14-04)
 
-[4] [Example Ansible](https://github.com/ansible/ansible-examples)
-
-[5] [Pratice-2/Vo-Minh-Thien-Long](https://github.com/vietstacker/Viettel-Digital-Talent-Program-2022/tree/main/Practice-2/Vo-Minh-Thien-Long)
+[4] [Kibana](https://www.elastic.co/kibana/)
