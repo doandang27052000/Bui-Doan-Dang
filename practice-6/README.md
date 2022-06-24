@@ -31,12 +31,18 @@ CFEngine là tool quản lý cấu hình đầu tiên từ năm 1990, và hiện
 
 
 <a name="introduce_ansible"></a>
+
 ## **2. Ansible**
 
 <a name="what_is_ansible"></a>
+
 ### **2.1 Ansible là gì**
+
 ![alt](./imgs/ansible.png)
+
+
 Ansible là 1 agent-less IT automation tool được phát triển bởi ***Michael DeHaan*** năm 2012. Ansible được tạo ra với mục đích là: minimal, consistent, secure, highly reliable and easy to learn.
+
 Ansible dễ dàng triển khai vì nó không sử dụng bất kỳ tác nhân hoặc cơ sở hạ tầng bảo mật tùy chỉnh nào ở phía máy khách và bằng cách đẩy các modules đến máy khách. Các modules này được thực thi cục bộ ở phía máy khách và đầu ra được đẩy trở lại máy chủ Ansible.
 Nó có thể dễ dàng kết nối với máy khách bằng SSH-Keys, đơn giản hóa toàn bộ quy trình. Thông tin chi tiết về ứng dụng khách, chẳng hạn như tên máy chủ hoặc địa chỉ IP và cổng SSH, được lưu trữ trong các tệp, được gọi là tệp inventory.
 
@@ -95,9 +101,13 @@ $ ansible --version
 <a name="ansible_workflow"></a>
 ## **3. Luồng xử lý trong Ansible**
 
+
+![](./imgs/ansible_workflow.png)
+
+
 <a name="human"></a>
 ### **3.1 Người quản trị**
-Nhìn vào biểu đồ trên, bắt đầu từ trái qua phải, đầu tiên ta có thể thấy người quản trị có thể thông qua CLI để tương tác với Ansible. 
+Nhìn vào biểu đồ trên, bắt đầu từ trái qua phải, đầu tiên ta có thể thấy người quản trị có thể thông qua CLI (Command line interface) để tương tác với Ansible. 
 CLI có hai cách tiếp cận khác nhau: Chúng ta có thể gửi lệnh từ dòng lệnh bằng cách sử dụng tệp thực thi ansible và đó được gọi là tương tác Ad-hoc. Cách tiếp cận thứ hai là sử dụng playbook, là tệp YML có chứa hướng dẫn mà con người có thể đọc được để thực hiện các tác vụ trên máy chủ hoặc nhóm máy chủ mong muốn khi gọi playbook và chúng tôi sẽ sử dụng tệp thực thi ansible-playbook.
 
 <a name="playbook"></a>
