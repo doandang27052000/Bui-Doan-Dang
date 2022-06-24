@@ -37,9 +37,11 @@
 <a name="history_it_automation"></a>
 ## **1. Mở đầu**
 
-Vào những thời gian đầu của IT, có rất ít các servers và cần rất nhiều sysadmin để quản trị những server, thường ít nhất là 2 sysamdin cho mỗi server. Và việc mà các sysadmin phải làm như cài đặt phần mềm, nâng cấp version hay thay đổi các file config đều được thực hiện một cách thủ công. Do đó, việc quản lý tốn rất nhiều công sức và thường dễ xảy ra lỗi, vì vậy nhiều sysadmin đã bắt đầu dùng các scripts để giúp họ dễ dàng quản lý servers hơn. Nhưng các script này vẫn khá phức tạp và được tổ chức chưa tốt.
+Vào thời điểm đầu khi công nghệ tự đống hóa chưa phát triển, để đảm bảo các server được hoạt động ổn định, thông thường cần nhiều system admin cùng điều hành, quản trị một server. Và các cộng việc như cài đặt phần mềm, nâng cấp version,... đều phải thực hiện thủ công nên tốn rất nhiều thời gian và trong quá trình cài đặt còn có thể gây ra lỗi.
 
-Khi công nghệ phát triển, các servers cũng trở nên tin cậy, ít lỗi hơn, và dễ dàng để quản lý hơn, các data center phát triển rất nhiều do nhu cầu của các công ty. Và để tốn ít chi phí, các công ty đã sử dụng virtualization, tạo ra hàng loạt các servers giống nhau. Vì vậy, mỗi sysadmin phải quản lý rất nhiều servers cùng lúc, nên cần phải có sự xuất hiện của các **configuration management tools** để thay thế cho các scripts đã được sử dụng trước đó.
+![alt](./imgs/CFT.png)
+
+Công nghệ ngày càng phát triển, nhu cầu cài đặt, sử dụng servers ngày càng nhiều hơn ít lỗi hơn, việc quản lý các server theo mô hình cũ dần mất đi hiệu quả và gây lãng phí tài nguyên. Để tốn ít chi phí, các công ty đã sử dụng virtualization, tạo ra hàng loạt các servers giống nhau. Vì vậy, mỗi sysadmin phải quản lý rất nhiều servers cùng lúc, nên cần phải có sự xuất hiện của các configuration management tools để thay thế cho các scripts đã được sử dụng trước đó.
 
 CFEngine là tool quản lý cấu hình đầu tiên từ năm 1990, và hiện tại có rất nhiều tools khác hiệu quả và dễ sử dụng hơn như: Puppet, Chef, Salt và Ansible. Sau đây ta sẽ đi tìm hiểu về Ansible.
 
@@ -49,9 +51,11 @@ CFEngine là tool quản lý cấu hình đầu tiên từ năm 1990, và hiện
 
 <a name="what_is_ansible"></a>
 ### **2.1 Ansible là gì**
+![alt](./imgs/ansible.png)
 Ansible là 1 agent-less IT automation tool được phát triển bởi ***Michael DeHaan*** năm 2012. Ansible được tạo ra với mục đích là: minimal, consistent, secure, highly reliable and easy to learn.
+Ansible dễ dàng triển khai vì nó không sử dụng bất kỳ tác nhân hoặc cơ sở hạ tầng bảo mật tùy chỉnh nào ở phía máy khách và bằng cách đẩy các modules đến máy khách. Các modules này được thực thi cục bộ ở phía máy khách và đầu ra được đẩy trở lại máy chủ Ansible.
+Nó có thể dễ dàng kết nối với máy khách bằng SSH-Keys, đơn giản hóa toàn bộ quy trình. Thông tin chi tiết về ứng dụng khách, chẳng hạn như tên máy chủ hoặc địa chỉ IP và cổng SSH, được lưu trữ trong các tệp, được gọi là tệp inventory.
 
-Ansible chủ yếu chạy trong chế độ push sử dụng SSH, nghĩa là ta sẽ push các configurations từ server tới các agent. Nhưng ta cũng có thể chạy ansible sử dụng **ansible-pull**, nghĩa là ta có thể cài đặt ansible lên mỗi agent, sau đó download các playbook từ server về và chạy khi có 1 số lượng lớn các máy tính (số lượng lớn này là bao nhiêu thì tùy thuộc, nhưng ở đây là nhiều hơn 500 máy)  và các updates cần thực hiện song song.
 
 <a name="why_use_ansible"></a>
 ### **2.2 Lý do sử dụng Ansible**
@@ -78,13 +82,12 @@ Dưới đây là một số lý do quan trọng để sử dụng ```Ansible```
 - ```Tag``` là tên được đặt cho một task có thể được sử dụng sau này để chỉ đưa ra task hoặc nhóm công việc cụ thể đó.
 
 
-
 <a name="ansible_architecture_and_configuration"></a>
 #### **2.4 Kiến trúc và cấu hình Ansible**
 
 ![](./imgs/ansible_architecture.png)
 
-Trong hình trên cho ta thấy ý tưở
+Như ta đã thấy trong hình trên, ý tưởng chính của ansible đó là có 1 hoặc nhiều các trung tâm điều khiển (command center trong hình) từ nơi mà ta có thể phát ra các lệnh hoặc 1 tập lệnh thông qua playbook để chạy trên các Target Node.
 
 Trong trường hợp bạn cài ansible thông qua repo trên github thì file **ansible.cfg** sẽ nằm trong thư mục maf bạn đã clone Ansible repository về.
 
