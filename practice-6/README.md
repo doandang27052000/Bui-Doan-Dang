@@ -1,4 +1,4 @@
-# **Bài cuối khóa VDT 2022 (2.4)**
+# **Bài cuối khóa VDT 2022 **
 # **Đề bài: Ansible được viết bằng Python, tìm hiểu luồng hoạt động của Ansible để một playbook được thực thi trên Target Node**
 -----
 # Mục lục
@@ -131,6 +131,10 @@ Giống như đa phần các phần mềm quản lý cấu hình tập trung kh�
 SSH, hoặc được gọi là Secure Shell, là một giao thức điều khiển từ xa cho phép người dùng kiểm soát và chỉnh sửa server từ xa qua Internet. Dịch vụ được tạo ra nhằm thay thế cho trình Telnet vốn không có mã hóa và sử dụng kỹ thuật cryptographic để đảm bảo tất cả giao tiếp gửi tới và gửi từ server từ xa diễn ra trong tình trạng mã hóa. Nó cung cấp thuật toán để chứng thực người dùng từ xa, chuyển input từ client tới host, và relay kết quả trả về tới khách hàng.
 
 Bằng cách sử dụng SSH, Ansible có thể gửi gửi các đoạn script và thực thi trên Target Node.
+<a name="conclusion"></a>
+### **4. Kết luận **
+
+Ansible là một trong những công cụ quản lý cấu hình hiện đại, nó tạo điều kiện thuận lợi cho công việc cài đặt, quản lý và bảo trì các server từ xa, với thiết kế tối giản giúp người dùng cài đặt và chạy nhanh chóng.Người dùng viết các tập lệnh cấp phép Ansible trong YAML, một tiêu chuẩn tuần tự hóa dữ liệu thân thiện với người dùng, chúng không bị ràng buộc với bất kỳ ngôn ngữ lập trình nào. Những đắc điểm trên đã giúp Ansible trở thành công cụ automation phổ biến và được sử dụng rộng rãi.
 
 <a name="references"></a>
 ## **Tài liệu tham khảo**
