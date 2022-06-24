@@ -124,9 +124,9 @@ Hầu hết module đều được viết bằng python, mỗi module sẽ có c
 ### **3.3 Ansible**
 Giống như đa phần các phần mềm quản lý cấu hình tập trung khác. Ansible có 2 loại server là control machine và node. Control machine là máy có trách nhiệm quản lý các node con trong hệ thống. Đây cũng là máy lưu trữ các thông tin về các node, playbook và các script cần dùng để deploy trên các node khác qua giao thức SSH.
 Để quản lý các node, ansible sẽ thực hiện các bước sau:
-1. Generate các task ra thành 1 Python script để thực hiện (về mặt kĩ thuật có thể là các ngôn ngữ lập trình khác)
-2. Tiếp đến đoạn scripts đó được gửi qua internet đến network và tới các host trong group được config 
-3. Thực hiện script trên tất cả các host trong group
+1. Generate các task ra thành 1 Python script để thực hiện (về mặt kĩ thuật có thể là các ngôn ngữ lập trình khác).
+2. Tiếp đến đoạn scripts đó bằng SSH, được gửi qua internet đến network và tới các host trong group được config.
+3. Thực hiện script trên tất cả các host trong group.
 4.  Chờ cho tới khi script được thực hiện xong trên tất cả các host.
 
 <a name="SSH"></a>
