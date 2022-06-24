@@ -113,7 +113,10 @@ CLI có hai cách tiếp cận khác nhau: Chúng ta có thể gửi lệnh từ
 <a name="playbook"></a>
 ### **3.2 Playbook**
 
-Như đã giới thiệu ở trên playbook dưới dạng yaml có cú pháp thực hiện các tasks. mức độ cơ bản, 1 task đơn giản chỉ là 1 lời gọi tới 1 ansible module. Modules (còn được gọi là 'task plugins' hay 'library plugins') là nơi thực hiện các công việc thực sự trong ansible, chúng là những gì được thực hiện trong mỗi playbook task.
+Như đã giới thiệu ở trên playbook dưới dạng yaml có cú pháp thực hiện các tasks. mức độ cơ bản, 1 task đơn giản chỉ là 1 lời gọi tới 1 ansible module. 
+
+Modules (còn được gọi là 'task plugins' hay 'library plugins') là nơi thực hiện các công việc thực sự trong ansible, chúng là những gì được thực hiện trong mỗi playbook task.
+
 Hầu hết module đều được viết bằng python, mỗi module sẽ có các tham số truyền vào là khác nhau, và hầu như tất cả các module đều có tham số theo dạng key=value, các tham số cách nhau bởi dấu cách. Ngoài ra cũng có 1 số module không có tham số như ping...
 
 
