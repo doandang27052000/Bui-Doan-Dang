@@ -1,4 +1,4 @@
-# **Bài cuối khóa VDT 2022 **
+# **Bài cuối khóa VDT 2022**
 # **Đề bài: Ansible được viết bằng Python, tìm hiểu luồng hoạt động của Ansible để một playbook được thực thi trên Target Node**
 -----
 # Mục lục
