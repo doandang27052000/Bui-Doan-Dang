@@ -124,18 +124,18 @@ Hầu hết module đều được viết bằng python, mỗi module sẽ có c
 ### **3.3 Ansible**
 Giống như đa phần các phần mềm quản lý cấu hình tập trung khác. Ansible có 2 loại server là control machine và node. Control machine là máy có trách nhiệm quản lý các node con trong hệ thống. Đây cũng là máy lưu trữ các thông tin về các node, playbook và các script cần dùng để deploy trên các node khác qua giao thức SSH.
 Để quản lý các node, ansible sẽ thực hiện các bước sau:
-1. Generate các task ra thành 1 Python script để thực hiện (về mặt kĩ thuật có thể là các 
+1. Generate các task ra thành 1 Python script để thực hiện (về mặt kĩ thuật có thể là các ngôn ngữ lập trình khác)
 2. Tiếp đến đoạn scripts đó được gửi qua internet đến network và tới các host trong group được config 
 3. Thực hiện script trên tất cả các host trong group
 4.  Chờ cho tới khi script được thực hiện xong trên tất cả các host.
 
 <a name="SSH"></a>
-### **3.4 SSH **
+### **3.4 SSH**
 SSH, hoặc được gọi là Secure Shell, là một giao thức điều khiển từ xa cho phép người dùng kiểm soát và chỉnh sửa server từ xa qua Internet. Dịch vụ được tạo ra nhằm thay thế cho trình Telnet vốn không có mã hóa và sử dụng kỹ thuật cryptographic để đảm bảo tất cả giao tiếp gửi tới và gửi từ server từ xa diễn ra trong tình trạng mã hóa. Nó cung cấp thuật toán để chứng thực người dùng từ xa, chuyển input từ client tới host, và relay kết quả trả về tới khách hàng.
 
 Bằng cách sử dụng SSH, Ansible có thể gửi gửi các đoạn script và thực thi trên Target Node.
 <a name="conclusion"></a>
-### **4. Kết luận **
+### **4. Kết luận**
 
 Ansible là một trong những công cụ quản lý cấu hình hiện đại, nó tạo điều kiện thuận lợi cho công việc cài đặt, quản lý và bảo trì các server từ xa, với thiết kế tối giản giúp người dùng cài đặt và chạy nhanh chóng.Người dùng viết các tập lệnh cấp phép Ansible trong YAML, một tiêu chuẩn tuần tự hóa dữ liệu thân thiện với người dùng, chúng không bị ràng buộc với bất kỳ ngôn ngữ lập trình nào. Những đắc điểm trên đã giúp Ansible trở thành công cụ automation phổ biến và được sử dụng rộng rãi.
 
