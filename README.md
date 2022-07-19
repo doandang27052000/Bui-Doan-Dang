@@ -1,4 +1,4 @@
-# Sử dụng Ansible, Docker để deploy Prometheus, Exporter, Alertmanager, Grafana
+# Sử dụng Ansible, Docker để deploy Prometheus, Exporter, Alertmanager, Grafana (fix)
 
 
 Author: **Bùi Doãn Đang**
